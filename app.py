@@ -13,8 +13,9 @@ restaurants = data['restaurants']
 def all_restaurants():
     if request.method == 'POST':
         content = request.get_json(silent=True)
+        print(type(content))
         if content is not None:
-            content = json.load(content)
+            print(content)
             restaurants.append(content['restaurant_name'])
         response = app.response_class(
             response=json.dumps({'restaurants': restaurants}),
@@ -36,7 +37,6 @@ def get_info(restaurant_id):
     if request.method == 'PUT':
         content = request.get_json(silent=True)
         if content is not None:
-            content = json.load(content)
             restaurants[restaurant_id] = content['restaurant_name']
         response = app.response_class(
             response=json.dumps({'restaurants': restaurants}),
