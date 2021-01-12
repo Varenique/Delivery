@@ -1,0 +1,9 @@
+{
+  "restaurants":{
+    "0": ["Vasilki", "Minsk", "Monday-Sunday: 08:00 - 23:45", "+375297777777"],
+    "1": ["Mama Doma", "Minsk", "Monday-Sunday: 10:00 - 22:00", "+375336666666"],
+    "2": ["Sorso", "Minsk", "Monday-Sunday: 09:30 - 23:00", "+375258181888"],
+    "3": ["Gan bei", "Minsk", "Monday-Sunday: 8:30 - 22:45", "+375290101111"],
+    "4": ["KFC", "Minsk", "Monday-Sunday: 08:00 - 23:00", "+375295678312"]
+  }
+}
