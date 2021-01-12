@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import json
 
 
@@ -12,45 +12,23 @@ restaurants = data['restaurants']
 @app.route('/api/restaurants', methods=['GET', 'POST'])
 def all_restaurants():
     if request.method == 'POST':
-        content = request.get_json(silent=True)
-        print(type(content))
+        content = request.json
         if content is not None:
-            print(content)
-            restaurants.append(content['restaurant_name'])
-        response = app.response_class(
-            response=json.dumps({'restaurants': restaurants}),
-            status=201,
-            mimetype='application/json'
-        )
-        return response
+            restaurants[str(len(restaurants))] = content['restaurant_info']
+        return jsonify({'restaurants': restaurants}), 201
     else:
-        response = app.response_class(
-            response=json.dumps({'restaurants': restaurants}),
-            status=200,
-            mimetype='application/json'
-        )
-        return response
+        return jsonify({'restaurants': restaurants}), 200
 
 
 @app.route('/api/restaurants/<int:restaurant_id>', methods=['GET', 'PUT'])
 def get_info(restaurant_id):
     if request.method == 'PUT':
-        content = request.get_json(silent=True)
+        content = request.json
         if content is not None:
             restaurants[restaurant_id] = content['restaurant_name']
-        response = app.response_class(
-            response=json.dumps({'restaurants': restaurants}),
-            status=200,
-            mimetype='application/json'
-        )
-        return response
+        return jsonify({'restaurants': restaurants}), 200
     else:
-        response = app.response_class(
-            response=json.dumps({'info': restaurants[restaurant_id]}),
-            status=200,
-            mimetype='application/json'
-        )
-        return response
+        return jsonify({'info': restaurants[restaurant_id]}), 200
 
 
 if __name__ == '__main__':
