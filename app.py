@@ -16,6 +16,12 @@ def all_restaurants():
         if content is not None:
             content = json.load(content)
             restaurants.append(content['restaurant_name'])
+        response = app.response_class(
+            response=json.dumps({'restaurants': restaurants}),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
     else:
         response = app.response_class(
             response=json.dumps({'restaurants': restaurants}),
@@ -32,6 +38,12 @@ def get_info(restaurant_id):
         if content is not None:
             content = json.load(content)
             restaurants[restaurant_id] = content['restaurant_name']
+        response = app.response_class(
+            response=json.dumps({'restaurants': restaurants}),
+            status=200,
+            mimetype='application/json'
+        )
+        return response
     else:
         response = app.response_class(
             response=json.dumps({'info': restaurants[restaurant_id]}),
