@@ -19,7 +19,7 @@ def all_restaurants():
             restaurants.append(content['restaurant_name'])
         response = app.response_class(
             response=json.dumps({'restaurants': restaurants}),
-            status=200,
+            status=201,
             mimetype='application/json'
         )
         return response
