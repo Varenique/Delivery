@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 from flask.views import MethodView
 from HandledError import HandledError
 
+
 app = Flask(__name__)
 with open("restaurants.json", "r") as read_file:
     data = json.load(read_file)
@@ -55,13 +56,4 @@ def handle_exception(ex):
 
 if __name__ == '__main__':
     app.run()
-
-
-
-
-
-
-
-
-
 
