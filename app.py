@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
 import json
+from flask import Flask, request, jsonify
 from flask.views import MethodView
 from HandledError import HandledError
 
@@ -24,21 +24,21 @@ class RestaurantEndpoint(MethodView):
 
 class RestaurantItemEndpoint(MethodView):
     def get(self, restaurant_id):
-        if len(restaurants) <= restaurant_id:
-            raise(HandledError(status_code=404, description="Page doesn't exist", name="Not Found"))
-        return jsonify(restaurants[restaurant_id]), 200
+        for restaurant in restaurants:
+            if restaurant["id"] == restaurant_id:
+                return jsonify(restaurant), 200
+        raise(HandledError(status_code=404, description="Page doesn't exist", name="Not Found"))
 
     def put(self, restaurant_id):
         content = request.json
-        answer = 200
         if content is None:
             raise HandledError(status_code=400, description="Required data not available", name="Bad Request")
-        if len(restaurants) <= restaurant_id:
-            answer = 201
-            restaurants.append(content)
-        else:
-            restaurants[restaurant_id] = content
-        return jsonify(restaurants[restaurant_id]), answer
+        for restaurant in restaurants:
+            if restaurant["id"] == restaurant_id:
+                for key, value in content.items():
+                    restaurant[key] = value
+                return jsonify(restaurant), 200
+        raise (HandledError(status_code=404, description="Page doesn't exist", name="Not Found"))
 
 
 app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
@@ -55,3 +55,13 @@ def handle_exception(ex):
 
 if __name__ == '__main__':
     app.run()
+
+
+
+
+
+
+
+
+
+
