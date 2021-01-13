@@ -19,7 +19,7 @@ class RestaurantEndpoint(MethodView):
         if content is None:
             raise ValidationError
         restaurants.append(content)
-        return jsonify({'restaurants': restaurants}), 201
+        return jsonify(restaurants), 201
 
 
 class RestaurantItemEndpoint(MethodView):
