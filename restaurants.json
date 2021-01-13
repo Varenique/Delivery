@@ -1,9 +1,39 @@
 {
-  "restaurants":{
-    "0": ["Vasilki", "Minsk", "Monday-Sunday: 08:00 - 23:45", "+375297777777"],
-    "1": ["Mama Doma", "Minsk", "Monday-Sunday: 10:00 - 22:00", "+375336666666"],
-    "2": ["Sorso", "Minsk", "Monday-Sunday: 09:30 - 23:00", "+375258181888"],
-    "3": ["Gan bei", "Minsk", "Monday-Sunday: 8:30 - 22:45", "+375290101111"],
-    "4": ["KFC", "Minsk", "Monday-Sunday: 08:00 - 23:00", "+375295678312"]
-  }
+  "restaurants":[
+    {
+      "id": 0,
+      "name": "Vasilki",
+      "address": "Minsk",
+      "work time": "Monday-Sunday: 08:00 - 23:45",
+      "phone number": "+375297777777"
+    },
+    {
+      "id": 1,
+      "name": "Mama Doma",
+      "address": "Minsk",
+      "work time": "Monday-Sunday: 10:00 - 22:00",
+      "phone number": "+375336666666"
+    },
+    {
+      "id": 2,
+      "name": "Sorso",
+      "address": "Minsk",
+      "work time": "Monday-Sunday: 09:30 - 23:00",
+      "phone number": "+375290101111"
+    },
+    {
+      "id": 3,
+      "name": "Gan bei",
+      "address": "Minsk",
+      "work time": "Monday-Sunday: 8:30 - 22:45",
+      "phone number": "+375258181888"
+    },
+    {
+      "id": 4,
+      "name": "KFC",
+      "address": "Minsk",
+      "work time": "Monday-Sunday: 08:00 - 23:00",
+      "phone number": "+375295678312"
+    }
+  ]
 }
