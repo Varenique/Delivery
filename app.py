@@ -1,5 +1,5 @@
-from flask import Flask, request, jsonify
 import json
+from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.routing import ValidationError
 
@@ -24,18 +24,17 @@ class RestaurantEndpoint(MethodView):
 
 class RestaurantItemEndpoint(MethodView):
     def get(self, restaurant_id):
-        return jsonify(restaurants[restaurant_id]), 200
+        for restaurant in restaurants:
+            if restaurant["id"] == restaurant_id:
+                return jsonify(restaurant), 200
 
     def put(self, restaurant_id):
         content = request.json
-        answer = 200
-        if content is not None:
-            if len(restaurants) <= restaurant_id:
-                answer = 201
-                restaurants.append(content)
-            else:
-                restaurants[restaurant_id] = content
-        return jsonify(restaurants[restaurant_id]), answer
+        for restaurant in restaurants:
+            if restaurant["id"] == restaurant_id:
+                for key, value in content.items():
+                    restaurant[key] = value
+                return jsonify(restaurant), 200
 
 
 app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
