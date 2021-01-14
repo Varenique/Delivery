@@ -1,4 +1,4 @@
-class HandledError(Exception):
+class CustomError(Exception):
     def __init__(self, description: str, status_code: int, name: str):
         self.description = description
         self.status_code = status_code
@@ -8,7 +8,7 @@ class HandledError(Exception):
         return self.name
 
 
-class ValidationError(HandledError):
+class ValidationError(CustomError):
     name = "Bad request"
     status_code = 400
 
