@@ -5,6 +5,7 @@ from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, ValidationError
 
 app = Flask(__name__)
+app.config.from_object('config.Config')
 pattern = {'id': int, 'name': str, 'address': str, "work_time": str, "phone_number": str}
 with open("restaurants.json", "r") as read_file:
     data = json.load(read_file)
