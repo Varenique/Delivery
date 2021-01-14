@@ -46,7 +46,7 @@ class RestaurantItemEndpoint(MethodView):
         for restaurant in restaurants:
             if restaurant["id"] == restaurant_id:
                 return jsonify(restaurant), 200
-        raise(HandledError(status_code=404, description="Restaurant with such ID doesn't exist", name="Not Found"))
+        raise HandledError(status_code=404, description="Restaurant with such ID doesn't exist", name="Not Found")
 
     def put(self, restaurant_id):
         content = request.json
@@ -56,9 +56,9 @@ class RestaurantItemEndpoint(MethodView):
                 for key, value in content.items():
                     restaurant[key] = value
                 return jsonify(restaurant), 200
-        raise (HandledError(status_code=404,
-                            description="No restaurant to update. Restaurant with such ID doesn't exist",
-                            name="Not Found"))
+        raise HandledError(status_code=404,
+                           description="No restaurant to update. Restaurant with such ID doesn't exist",
+                           name="Not Found")
 
 
 app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
