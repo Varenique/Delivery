@@ -2,7 +2,7 @@ import json
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from error_handling import CustomError, ValidationError
+from error_handling import CustomError, ValidationError, WrongIdError
 
 app = Flask(__name__)
 pattern = {'id': int, 'name': str, 'address': str, "work_time": str, "phone_number": str}
@@ -46,7 +46,7 @@ class RestaurantItemEndpoint(MethodView):
         for restaurant in restaurants:
             if restaurant["id"] == restaurant_id:
                 return jsonify(restaurant), 200
-        raise CustomError(status_code=404, description="Restaurant with such ID doesn't exist", name="Not Found")
+        raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
     def put(self, restaurant_id):
         content = request.json
@@ -56,9 +56,7 @@ class RestaurantItemEndpoint(MethodView):
                 for key, value in content.items():
                     restaurant[key] = value
                 return jsonify(restaurant), 200
-        raise CustomError(status_code=404,
-                          description="No restaurant to update. Restaurant with such ID doesn't exist",
-                          name="Not Found")
+        raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
 
 
 app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))

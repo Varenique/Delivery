@@ -19,4 +19,14 @@ class ValidationError(CustomError):
         return self.name
 
 
+class WrongIdError(CustomError):
+    name = "Not Found"
+    status_code = 404
+
+    def __init__(self, description: str):
+        self.description = description
+
+    def __str__(self):
+        return self.name
+
 
