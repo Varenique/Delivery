@@ -7,7 +7,7 @@ load_dotenv(path.join(basedir, '.env'))
 
 
 class Config:
-    """Base config."""
+    PATH_TO_INITIAL_DATA = path.join(basedir, 'restaurants.json')
     SECRET_KEY = environ.get('SECRET_KEY')
     STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
