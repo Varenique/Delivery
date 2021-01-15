@@ -9,14 +9,13 @@ class CustomError(Exception):
 
 
 class ValidationError(CustomError):
-    name = "Bad request"
-    status_code = 400
-
     def __init__(self, description: str):
-        self.description = description
+        super().__init__(name="Bad request", status_code=400, description=description)
 
-    def __str__(self):
-        return self.name
+
+class WrongIdError(CustomError):
+    def __init__(self, description: str):
+        super().__init__(name="Not Found", status_code=404, description=description)
 
 
 
