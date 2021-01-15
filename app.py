@@ -44,7 +44,6 @@ class RestaurantEndpoint(MethodView):
     def post(self):
         content = request.json
         validation.post_validation(content)
-        #validate_post(content)
         restaurants.append(content)
         return jsonify(restaurants), 201
 
@@ -59,7 +58,6 @@ class RestaurantItemEndpoint(MethodView):
     def put(self, restaurant_id):
         content = request.json
         validation.put_validation(content)
-        #validate_put(content)
         for restaurant in restaurants:
             if restaurant["id"] == restaurant_id:
                 for key, value in content.items():
