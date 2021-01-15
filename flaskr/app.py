@@ -2,9 +2,12 @@ import json
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from error_handling import CustomError, ValidationError, WrongIdError
+from flaskr.error_handling import CustomError, ValidationError, WrongIdError
+from flask import Blueprint
+from flaskr import create_app
 
-app = Flask(__name__)
+bp = Blueprint('api', __name__, url_prefix='/api')
+
 with open("restaurants.json", "r") as read_file:
     data = json.load(read_file)
 
@@ -66,11 +69,11 @@ class RestaurantItemEndpoint(MethodView):
         raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
 
 
-app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
-app.add_url_rule("/api/restaurants/<int:restaurant_id>", view_func=RestaurantItemEndpoint.as_view("restaurant_item_api"))
+bp.add_url_rule("/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
+bp.add_url_rule("/restaurants/<int:restaurant_id>", view_func=RestaurantItemEndpoint.as_view("restaurant_item_api"))
 
 
-@app.errorhandler(CustomError)
+@bp.errorhandler(CustomError)
 def handle_exception(ex):
     return jsonify({
         "name": ex.name,
@@ -78,7 +81,7 @@ def handle_exception(ex):
     }), ex.status_code
 
 
-@app.errorhandler(HTTPException)
+@bp.errorhandler(HTTPException)
 def handle_standard_exception(ex):
     return jsonify({
         "code": ex.code,
@@ -88,4 +91,4 @@ def handle_standard_exception(ex):
 
 
 if __name__ == '__main__':
-    app.run()
+    bp.run()
