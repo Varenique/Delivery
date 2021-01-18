@@ -6,15 +6,12 @@ from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, ValidationError, WrongIdError
 
 app = Flask(__name__)
-try:
-    env = os.environ['FLASK_ENV']
-    if env == 'production':
-        app.config.from_object('config.ProdConfig')
-    elif env == 'development':
-        app.config.from_object('config.DevConfig')
-except KeyError as e:
-    env = 'development'
+env = os.environ.get('FLASK_ENV', 'production')
+if env == 'development':
     app.config.from_object('config.DevConfig')
+else:
+    os.environ['FLASK_ENV'] = 'production'
+    app.config.from_object('config.ProdConfig')
 
 with open(app.config['PATH_FOR_INITIAL_DATA'], "r") as read_file:
     data = json.load(read_file)
