@@ -7,8 +7,8 @@ load_dotenv(path.join(basedir, '.env'))
 
 
 class Config:
-    DEBUG = False
     TESTING = False
+    DEBUG = False
 
 
 class ProdConfig(Config):

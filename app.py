@@ -6,7 +6,6 @@ from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, ValidationError, WrongIdError
 
 app = Flask(__name__)
-
 try:
     env = os.environ['FLASK_ENV']
     if env == 'production':
