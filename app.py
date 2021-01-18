@@ -1,4 +1,5 @@
 import json
+import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
@@ -6,7 +7,16 @@ from error_handling import CustomError, ValidationError, WrongIdError
 
 app = Flask(__name__)
 
-app.config.from_object('config.Config')
+try:
+    env = os.environ['FLASK_ENV']
+    if env == 'production':
+        app.config.from_object('config.ProdConfig')
+    elif env == 'development':
+        app.config.from_object('config.DevConfig')
+except KeyError as e:
+    env = 'development'
+    app.config.from_object('config.DevConfig')
+
 with open(app.config['PATH_TO_INITIAL_DATA'], "r") as read_file:
     data = json.load(read_file)
 
