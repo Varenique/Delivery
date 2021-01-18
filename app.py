@@ -16,7 +16,7 @@ except KeyError as e:
     env = 'development'
     app.config.from_object('config.DevConfig')
 
-with open(app.config['PATH_TO_INITIAL_DATA'], "r") as read_file:
+with open(app.config['PATH_FOR_INITIAL_DATA'], "r") as read_file:
     data = json.load(read_file)
 
 restaurants = data['restaurants']
