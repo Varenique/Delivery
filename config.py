@@ -1,4 +1,5 @@
 """Flask configuration."""
+import os
 from os import environ, path
 from dotenv import load_dotenv
 
@@ -7,22 +8,18 @@ load_dotenv(path.join(basedir, '.env'))
 
 
 class Config:
-    """Base config."""
     FLASK_APP = "flaskr"
-    PATH_TO_INITIAL_DATA = path.join(basedir, 'restaurants.json')
-    SECRET_KEY = environ.get('SECRET_KEY')
-    SESSION_COOKIE_NAME = environ.get('SESSION_COOKIE_NAME')
-    STATIC_FOLDER = 'static'
-    TEMPLATES_FOLDER = 'templates'
+    TESTING = False
+    DEBUG = False
+    PATH_FOR_INITIAL_DATA = None
 
 
 class ProdConfig(Config):
-    FLASK_ENV = 'production'
-    DEBUG = False
-    TESTING = False
+    PATH_FOR_INITIAL_DATA = os.environ.get("PATH_FOR_INITIAL_DATA")
 
 
 class DevConfig(Config):
-    FLASK_ENV = 'development'
     DEBUG = True
     TESTING = True
+    PATH_FOR_INITIAL_DATA = path.join(basedir, 'restaurants.json')
+
