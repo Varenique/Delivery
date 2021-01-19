@@ -1,10 +1,3 @@
-def test_get_nonexisten(test_client):
-    response = test_client.get('/api/restaurants/3000')
-    assert response.status_code == 404
-    assert b'{\n  "description": "Restaurant with such ID doesn\'t exist", \n  "name": "Not Found"\n}\n' \
-           == response.data
-
-
 def test_put_empty(test_client):
     response = test_client.put('/api/restaurants/0')
     assert response.status_code == 400
