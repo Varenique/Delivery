@@ -1,4 +1,6 @@
 import os
+
+from flasgger import Swagger
 from flask import Flask
 
 
@@ -12,6 +14,7 @@ def create_app():
         os.environ['FLASK_ENV'] = 'production'
         application.config.from_object('config.ProdConfig')
 
+    Swagger(application)
     from . import app
     application.register_blueprint(app.bp)
     return application

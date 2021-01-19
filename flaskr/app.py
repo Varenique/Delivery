@@ -5,6 +5,7 @@ from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 from flaskr.error_handling import CustomError, ValidationError, WrongIdError
 from flask import Blueprint
+from flasgger import Swagger, swag_from
 from flaskr import create_app
 
 bp = Blueprint('api', __name__, url_prefix='/api')
@@ -54,12 +55,15 @@ class RestaurantEndpoint(MethodView):
 
 
 class RestaurantItemEndpoint(MethodView):
+    @swag_from("yaml\\restaurant_api.yml")
     def get(self, restaurant_id):
+
         for restaurant in restaurants:
             if restaurant["id"] == restaurant_id:
                 return jsonify(restaurant), 200
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
+    @swag_from("yaml\\restaurant_api.yml")
     def put(self, restaurant_id):
         content = request.json
         validation.put_validation(content)
@@ -92,5 +96,3 @@ def handle_standard_exception(ex):
     }), ex.code
 
 
-if __name__ == '__main__':
-    bp.run()

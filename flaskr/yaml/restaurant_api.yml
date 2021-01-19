@@ -1,0 +1,62 @@
+This examples uses FlaskRESTful Resource
+For getting one restaurant
+---
+get:
+    parameters:
+      - in: path
+        name: restaurant_id
+        required: true
+        description: id for restaurant to return
+        schema:
+            type: integer
+            format: int64
+put:
+    requestBody:
+        description: Info that you want to update
+        required: true
+        content:
+            application/json:
+                schema:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      id:
+                        type: integer
+                      required:
+                        - name
+                        - id
+
+    parameters:
+      - in: path
+        name: restaurant_id
+        required: true
+        description: id for restaurant to return
+        schema:
+            type: integer
+            format: int64
+
+
+responses:
+    '200':
+        description: OK
+
+    '201':
+      description: Created
+
+definitions:
+    Restaurant:           # <----------
+        type: object
+        properties:
+            name:
+                type: string
+            id:
+                type: integer
+
+#    responses:
+#        '200':
+#            content:
+#                application/json:
+#                    schema:
+#                        items:
+#                            type:string
