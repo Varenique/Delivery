@@ -1,11 +1,19 @@
 import json
+import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, ValidationError, WrongIdError
 
 app = Flask(__name__)
-with open("restaurants.json", "r") as read_file:
+env = os.environ.get('FLASK_ENV', 'production')
+if env == 'development':
+    app.config.from_object('config.DevConfig')
+else:
+    os.environ['FLASK_ENV'] = 'production'
+    app.config.from_object('config.ProdConfig')
+
+with open(app.config['PATH_FOR_INITIAL_DATA'], "r") as read_file:
     data = json.load(read_file)
 
 restaurants = data['restaurants']
