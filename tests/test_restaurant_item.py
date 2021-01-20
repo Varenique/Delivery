@@ -19,7 +19,7 @@ def test_get_one(test_client, get_mocker):
     assert data == response.get_json()
 
 
-def test_put_one(test_client, get_mocker):
+def test_put(test_client, get_mocker):
     data = {"name": "Hotfix"}
     response = test_client.put('/api/restaurants/0', json=data)
     assert response.status_code == 200
