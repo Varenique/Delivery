@@ -3,12 +3,25 @@ import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from flaskr.error_handling import CustomError, ValidationError, WrongIdError
-from flask import Blueprint
-from flaskr import create_app
+from error_handling import CustomError, ValidationError, WrongIdError
+#from flaskr import create_app
 
-bp = Blueprint('api', __name__, url_prefix='/api')
 
+# class InitialData:
+#     def __init__(self):
+#         path = os.environ.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
+#         with open(path, "r") as read_file:
+#             data = json.load(read_file)
+#         self._restaurants = data['restaurants']
+#
+#     def get_restaurants(self):
+#         return self._restaurants
+#
+#     def set_restaurants(self, new_restaurants):
+#         self._restaurants = new_restaurants
+#
+#
+# restaurants_list = InitialData()
 path = os.environ.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
 with open(path, "r") as read_file:
     data = json.load(read_file)
@@ -71,11 +84,6 @@ class RestaurantItemEndpoint(MethodView):
         raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
 
 
-bp.add_url_rule("/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
-bp.add_url_rule("/restaurants/<int:restaurant_id>", view_func=RestaurantItemEndpoint.as_view("restaurant_item_api"))
-
-
-@bp.errorhandler(CustomError)
 def handle_exception(ex):
     return jsonify({
         "name": ex.name,
@@ -83,7 +91,6 @@ def handle_exception(ex):
     }), ex.status_code
 
 
-@bp.errorhandler(HTTPException)
 def handle_standard_exception(ex):
     return jsonify({
         "code": ex.code,
@@ -92,5 +99,28 @@ def handle_standard_exception(ex):
     }), ex.code
 
 
+def register_url_rules(app):
+    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
+    app.add_url_rule("/api/restaurants/<int:restaurant_id>",
+                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api"))
+    app.register_error_handler(CustomError, handle_exception)
+    app.register_error_handler(HTTPException, handle_standard_exception)
+
+
+def create_app():
+    application = Flask(__name__)
+    application.config.from_object('config.Config')
+    env = os.environ.get('FLASK_ENV', 'production')
+    if env == 'development':
+        application.config.from_object('config.DevConfig')
+    else:
+        os.environ['FLASK_ENV'] = 'production'
+        application.config.from_object('config.ProdConfig')
+    register_url_rules(application)
+    return application
+
+
+app = create_app()
+
 if __name__ == '__main__':
-    bp.run()
+    app.run()

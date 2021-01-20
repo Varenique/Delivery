@@ -8,7 +8,6 @@ load_dotenv(path.join(basedir, '.env'))
 
 
 class Config:
-    FLASK_APP = "flaskr"
     TESTING = False
     DEBUG = False
     PATH_FOR_INITIAL_DATA = None
