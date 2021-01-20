@@ -53,10 +53,3 @@ definitions:
             id:
                 type: integer
 
-#    responses:
-#        '200':
-#            content:
-#                application/json:
-#                    schema:
-#                        items:
-#                            type:string

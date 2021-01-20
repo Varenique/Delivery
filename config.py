@@ -1,21 +1,17 @@
 """Flask configuration."""
-import os
 from os import environ, path
-from dotenv import load_dotenv
 
 basedir = path.abspath(path.dirname(__file__))
-load_dotenv(path.join(basedir, '.env'))
 
 
 class Config:
-    FLASK_APP = "flaskr"
     TESTING = False
     DEBUG = False
     PATH_FOR_INITIAL_DATA = None
 
 
 class ProdConfig(Config):
-    PATH_FOR_INITIAL_DATA = os.environ.get("PATH_FOR_INITIAL_DATA")
+    PATH_FOR_INITIAL_DATA = environ.get("PATH_FOR_INITIAL_DATA")
 
 
 class DevConfig(Config):
