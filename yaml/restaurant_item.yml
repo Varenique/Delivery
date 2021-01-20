@@ -1,4 +1,4 @@
-RestaurantEndpoint
+RestaurantItemEndpoint
 ---
 get:
   description: get one restaurant
@@ -20,22 +20,29 @@ put:
     required: true
     description: info to update
     schema:
+      id: PutInfo
       properties:
         id:
           type: integer
-          description: id to update
+          description: if you want to update id
         name:
           type: string
-          description: name of rest
+          description: if you want to update name
         address:
           type: string
+          description: if you want to update address
         work_time:
           type: string
+          description: if you want to update work time
         phone_number:
           type: string
+          description: if you want to update phone number
 
 responses:
   '200':
     description: OK
+
+
+
 
 

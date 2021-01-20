@@ -41,9 +41,11 @@ validation = Validation()
 
 
 class RestaurantEndpoint(MethodView):
+    @swag_from("yaml\\restaurants.yml")
     def get(self):
         return jsonify(restaurants), 200
 
+    @swag_from("yaml\\restaurants.yml")
     def post(self):
         content = request.json
         validation.post_validation(content)
@@ -52,7 +54,7 @@ class RestaurantEndpoint(MethodView):
 
 
 class RestaurantItemEndpoint(MethodView):
-    @swag_from("yaml\\restaurant_api.yml")
+    @swag_from("yaml\\restaurant_item.yml")
     def get(self, restaurant_id):
 
         for restaurant in restaurants:
@@ -60,7 +62,7 @@ class RestaurantItemEndpoint(MethodView):
                 return jsonify(restaurant), 200
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
-    @swag_from("yaml\\restaurant_api.yml")
+    @swag_from("yaml\\restaurant_item.yml")
     def put(self, restaurant_id):
         content = request.json
         validation.put_validation(content)

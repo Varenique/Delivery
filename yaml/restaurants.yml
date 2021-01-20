@@ -1,0 +1,40 @@
+RestaurantEndpoint
+---
+get:
+  description: get one restaurant
+post:
+  parameters:
+  - in: body
+    name: new_restaurant
+    required: true
+    description: add new restaurant
+    schema:
+      id: PostInfo
+      required:
+        - id
+        - name
+        - address
+        - work_time
+        - phone_number
+      properties:
+        id:
+          type: integer
+          description: id of new restaurant
+        name:
+          type: string
+          description: name of new restaurant
+        address:
+          type: string
+          description: adress of new restaurant
+        work_time:
+          type: string
+          description: work time of new restaurant
+        phone_number:
+          type: string
+          description: phone number of new restaurant
+
+responses:
+  '200':
+    description: OK
+  '201':
+    description: Created
