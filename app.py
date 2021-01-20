@@ -4,24 +4,7 @@ from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, ValidationError, WrongIdError
-#from flaskr import create_app
 
-
-# class InitialData:
-#     def __init__(self):
-#         path = os.environ.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-#         with open(path, "r") as read_file:
-#             data = json.load(read_file)
-#         self._restaurants = data['restaurants']
-#
-#     def get_restaurants(self):
-#         return self._restaurants
-#
-#     def set_restaurants(self, new_restaurants):
-#         self._restaurants = new_restaurants
-#
-#
-# restaurants_list = InitialData()
 path = os.environ.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
 with open(path, "r") as read_file:
     data = json.load(read_file)

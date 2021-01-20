@@ -9,8 +9,6 @@ def test_put_nonexisten(test_client, get_mocker):
     assert response.status_code == 404
     assert {"description": "No restaurant to update. Restaurant with such ID doesn\'t exist",
             "name": "Not Found"} == response.get_json()
-    # assert b'{\n  "description": "No restaurant to update. Restaurant with such ID doesn\'t exist", ' \
-    #        b'\n  "name": "Not Found"\n}\n' == response.data
 
 
 def test_get_one(test_client, get_mocker):
