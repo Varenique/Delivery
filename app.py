@@ -105,6 +105,7 @@ def create_app():
         os.environ['FLASK_ENV'] = 'production'
         application.config.from_object('config.ProdConfig')
     register_url_rules(application)
+    Swagger(application)
     return application
 
 
