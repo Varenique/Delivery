@@ -1,5 +1,11 @@
 from setuptools import find_packages, setup
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
+with open('requirements-test.txt') as f:
+    requirements_test = f.read().splitlines()
+
 setup(
     name='delivery_system',
     version='1.0.0',
@@ -8,16 +14,6 @@ setup(
     url="https://github.com/Varenique/Delivery_system",
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        'Flask>=1.1.2',
-        'Jinja2>=2.11.2',
-        'MarkupSafe>=1.1.1',
-        'Werkzeug>=1.0.1',
-        'python-dotenv>=0.15.0',
-        'flasgger>=0.9.5',
-        'py>=1.10.0',
-        'PyYAML>=5.3.1',
-        'pytest>=6.2.1',
-        'pytest-mock>=3.5.1'
-    ]
+    install_requires=requirements,
+    extras_require={'test': requirements_test}
 )

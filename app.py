@@ -5,12 +5,6 @@ from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, ValidationError, WrongIdError
 
-path = os.environ.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-with open(path, "r") as read_file:
-    data = json.load(read_file)
-
-restaurants = data['restaurants']
-
 
 class Validation:
     pattern = {'id': int, 'name': str, 'address': str, "work_time": str, "phone_number": str}
@@ -39,19 +33,26 @@ validation = Validation()
 
 
 class RestaurantEndpoint(MethodView):
+    
+    def __init__(self, restaurants):
+        self.restaurants = restaurants
+
     def get(self):
-        return jsonify(restaurants), 200
+        return jsonify(self.restaurants), 200
 
     def post(self):
         content = request.json
         validation.post_validation(content)
-        restaurants.append(content)
-        return jsonify(restaurants), 201
+        self.restaurants.append(content)
+        return jsonify(self.restaurants), 201
 
 
 class RestaurantItemEndpoint(MethodView):
+    def __init__(self, restaurants):
+        self.restaurants = restaurants
+
     def get(self, restaurant_id):
-        for restaurant in restaurants:
+        for restaurant in self.restaurants:
             if restaurant["id"] == restaurant_id:
                 return jsonify(restaurant), 200
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
@@ -59,7 +60,7 @@ class RestaurantItemEndpoint(MethodView):
     def put(self, restaurant_id):
         content = request.json
         validation.put_validation(content)
-        for restaurant in restaurants:
+        for restaurant in self.restaurants:
             if restaurant["id"] == restaurant_id:
                 for key, value in content.items():
                     restaurant[key] = value
@@ -82,10 +83,13 @@ def handle_standard_exception(ex):
     }), ex.code
 
 
-def register_url_rules(app):
-    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api"))
+def register_url_rules(app, restaurants):
+    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api", restaurants))
     app.add_url_rule("/api/restaurants/<int:restaurant_id>",
-                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api"))
+                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api", restaurants))
+
+
+def register_error_handlers(app):
     app.register_error_handler(CustomError, handle_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
 
@@ -99,11 +103,18 @@ def create_app():
     else:
         os.environ['FLASK_ENV'] = 'production'
         application.config.from_object('config.ProdConfig')
-    register_url_rules(application)
+
+    path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
+    with open(path, "r") as read_file:
+        data = json.load(read_file)
+    register_url_rules(application, data['restaurants'])
+    register_error_handlers(application)
+
     return application
 
 
 app = create_app()
+
 
 if __name__ == '__main__':
     app.run()
