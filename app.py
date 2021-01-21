@@ -41,6 +41,7 @@ validation = Validation()
 
 
 class RestaurantEndpoint(MethodView):
+
     @swag_from("yaml\\restaurants.yml")
     def get(self):
         return jsonify(restaurants), 200
