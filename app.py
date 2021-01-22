@@ -3,23 +3,17 @@ import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from flasgger import Swagger, swag_from
 from error_handling import CustomError, WrongIdError
+from flasgger import Swagger, SwaggerView, Schema, fields
 from marshmallow import Schema, fields, ValidationError
 
 
-class RestaurantSchemaPost(Schema):
+class RestaurantCreateOrUpdateSchema(Schema):
     name = fields.Str(required=True)
     address = fields.Str(required=True)
     work_time = fields.Str(required=True)
     phone_number = fields.Str(required=True)
-
-
-class RestaurantSchemaPut(Schema):
-    name = fields.Str()
-    address = fields.Str()
-    work_time = fields.Str()
-    phone_number = fields.Str()
+    id = fields.Int(dump_only=True)
 
 
 class RestaurantEndpoint(MethodView):
@@ -31,11 +25,8 @@ class RestaurantEndpoint(MethodView):
 
     def post(self):
         content = request.json
-        schema = RestaurantSchemaPost()
-        try:
-            schema.load(content)
-        except ValidationError as err:
-            return {"name": "Bad Request", "description": err.messages}, 400
+        schema = RestaurantCreateOrUpdateSchema()
+        schema.load(content)
         content['id'] = self.restaurants[len(self.restaurants) - 1]['id'] + 1
         self.restaurants.append(content)
         return jsonify(self.restaurants), 201
@@ -54,17 +45,21 @@ class RestaurantItemEndpoint(MethodView):
 
     def put(self, restaurant_id):
         content = request.json
-        schema = RestaurantSchemaPut()
-        try:
-            schema.load(content)
-        except ValidationError as err:
-            return {"name": "Bad Request", "description": err.messages}, 400
+        schema = RestaurantCreateOrUpdateSchema(partial=True)
+        schema.load(content)
         for restaurant in self.restaurants:
             if restaurant["id"] == restaurant_id:
                 for key, value in content.items():
                     restaurant[key] = value
                 return jsonify(restaurant), 200
         raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
+
+
+def handle_validation_error(ex):
+    return jsonify({
+        "name": "Bad Request",
+        "description": ex.messages
+    }), 400
 
 
 def handle_exception(ex):
@@ -91,6 +86,7 @@ def register_url_rules(app, restaurants):
 def register_error_handlers(app):
     app.register_error_handler(CustomError, handle_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
+    app.register_error_handler(ValidationError, handle_validation_error)
 
 
 def create_app():
@@ -108,7 +104,6 @@ def create_app():
         'title': 'Delivery System API',
         'description': 'Documentation for Delivery App by Varvara M.',
         'doc_dir': './apidocs/'
-
     }
     Swagger(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
