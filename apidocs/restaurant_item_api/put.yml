@@ -1,13 +1,7 @@
 RestaurantItemEndpoint
 ---
-get:
-  description: get one restaurant
-  parameters:
-  - in: path
-    name: restaurant_id
-    required: true
-    description: id for restaurant to return
-    type: integer
+tags:
+  - restaurants
 put:
   parameters:
   - in: path

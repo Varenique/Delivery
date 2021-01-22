@@ -1,7 +1,7 @@
 RestaurantEndpoint
 ---
-get:
-  description: get one restaurant
+tags:
+  - restaurants
 post:
   parameters:
   - in: body

@@ -1,0 +1,10 @@
+RestaurantEndpoint
+---
+tags:
+  - restaurants
+get:
+  description: get one restaurant
+
+responses:
+  '200':
+    description: OK

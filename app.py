@@ -37,11 +37,10 @@ class RestaurantEndpoint(MethodView):
     def __init__(self, restaurants):
         self.restaurants = restaurants
 
-    @swag_from("yaml\\restaurants.yml")
     def get(self):
         return jsonify(self.restaurants), 200
 
-    @swag_from("yaml\\restaurants.yml")
+    #@swag_from("yaml\\restaurants.yml")
     def post(self):
         content = request.json
         validation.post_validation(content)
@@ -53,7 +52,7 @@ class RestaurantItemEndpoint(MethodView):
     def __init__(self, restaurants):
         self.restaurants = restaurants
 
-    @swag_from("yaml\\restaurant_item.yml")
+    #@swag_from("yaml\\restaurant_item.yml")
     def get(self, restaurant_id):
         for restaurant in self.restaurants:
 
@@ -61,7 +60,7 @@ class RestaurantItemEndpoint(MethodView):
                 return jsonify(restaurant), 200
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
-    @swag_from("yaml\\restaurant_item.yml")
+    #@swag_from("yaml\\restaurant_item.yml")
     def put(self, restaurant_id):
         content = request.json
         validation.put_validation(content)
@@ -108,10 +107,18 @@ def create_app():
     else:
         os.environ['FLASK_ENV'] = 'production'
         application.config.from_object('config.ProdConfig')
-    Swagger(application)
+    application.config['SWAGGER'] = {
+        'title': 'Delivery System API',
+        'description': 'Documentation for Delivery App by Varvara M.',
+        'doc_dir': './apidocs/'
+    }
+    Swagger(application, parse=True)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-    with open(path, "r") as read_file:
-        data = json.load(read_file)
+    try:
+        with open(path, "r") as read_file:
+            data = json.load(read_file)
+    except TypeError:
+        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
     register_url_rules(application, data['restaurants'])
     register_error_handlers(application)
     return application
