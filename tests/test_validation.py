@@ -7,8 +7,7 @@ import pytest
 def test_put_wrong_format(test_client, body, description, mocker_restaurant_item_endpoint):
     response = test_client.put('/api/restaurants/0', json=body)
     assert response.status_code == 400
-    assert {"description": "{}".format(description),
-            "name": "Bad request"} == response.get_json()
+    assert response.get_json()["name"] == "Bad Request"
 
 
 @pytest.mark.parametrize("body, description", [
@@ -21,4 +20,4 @@ def test_put_wrong_format(test_client, body, description, mocker_restaurant_item
 def test_post_wrong_format(test_client, body, description, mocker_restaurant_endpoint):
     response = test_client.post('/api/restaurants', json=body)
     assert response.status_code == 400
-    assert {"description": "{}".format(description), "name": "Bad request"} == response.get_json()
+    assert response.get_json()["name"] == "Bad Request"
