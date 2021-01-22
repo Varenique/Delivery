@@ -108,11 +108,14 @@ def create_app():
         os.environ['FLASK_ENV'] = 'production'
         application.config.from_object('config.ProdConfig')
     application.config['SWAGGER'] = {
+        "uiversion": 3,
+        "openapi": "3.0.3",
         'title': 'Delivery System API',
         'description': 'Documentation for Delivery App by Varvara M.',
         'doc_dir': './apidocs/'
+
     }
-    Swagger(application, parse=True)
+    Swagger(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
     try:
         with open(path, "r") as read_file:

@@ -9,9 +9,7 @@ post:
     required: true
     description: add new restaurant
     schema:
-      id: PostInfo
       required:
-        - id
         - name
         - address
         - work_time
@@ -32,9 +30,66 @@ post:
         phone_number:
           type: string
           description: phone number of new restaurant
+      example:
+        name: 'Salateria'
+        address: 'Minsk'
+        work_time: 'Monday-Sunday: 10:00-21:00'
+        phone_number: '+375291234567'
 
 responses:
-  '200':
-    description: OK
-  '201':
+  201:
     description: Created
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            restaurants:
+              type: object
+              proporties:
+                id: integer
+                name: string
+                address: string
+                work_time: string
+                phone_number: string
+        examples:
+          "add Salateria":
+            value: [{"address": "Minsk", "id": 0, "name": "Vasilki", "phone_number": "+375297777777",
+                     "work_time": "Monday-Sunday: 08:00 - 23:45"},
+                    {"address": "Minsk", "id": 1, "name": "Mama Doma", "phone_number": "+375336666666",
+                     "work_time": "Monday-Sunday: 10:00 - 22:00"},
+                    {"address": "Minsk", "id": 2, "name": "Sorso", "phone_number": "+375290101111",
+                     "work_time": "Monday-Sunday: 09:30 - 23:00"},
+                    {"address": "Minsk", "id": 3, "name": "Salateria", "phone_number": "+375291234567",
+                     "work_time": "Monday-Sunday: 10:00-21:00"}]
+
+  400:
+    description: Bad Request
+    content:
+      application/json:
+        examples:
+          "Not correct data":
+            value:
+              {
+                "description": "Sent data not correct, doesn't match format",
+                "name": "Bad request"
+              }
+          "No data":
+            value:
+              {
+                "description": "Required data not available(No data)",
+                "name": "Bad request"
+              }
+          "Not correct type of data":
+            value:
+              {
+                "description": "Type of sent data not correct",
+                "name": "Bad request"
+              }
+          "Not correct structure of request":
+            value:
+              {
+                "code": 400,
+                "description": "The browser (or proxy) sent a request that this server could not understand.",
+                "name": "Bad Request"
+              }
