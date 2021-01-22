@@ -8,7 +8,7 @@ from error_handling import CustomError, ValidationError, WrongIdError
 
 
 class Validation:
-    pattern = {'id': int, 'name': str, 'address': str, "work_time": str, "phone_number": str}
+    pattern = {'name': str, 'address': str, "work_time": str, "phone_number": str}
 
     @staticmethod
     def empty(content):
@@ -40,10 +40,10 @@ class RestaurantEndpoint(MethodView):
     def get(self):
         return jsonify(self.restaurants), 200
 
-    #@swag_from("yaml\\restaurants.yml")
     def post(self):
         content = request.json
         validation.post_validation(content)
+        content['id'] = self.restaurants[len(self.restaurants) - 1]['id'] + 1
         self.restaurants.append(content)
         return jsonify(self.restaurants), 201
 
@@ -52,7 +52,6 @@ class RestaurantItemEndpoint(MethodView):
     def __init__(self, restaurants):
         self.restaurants = restaurants
 
-    #@swag_from("yaml\\restaurant_item.yml")
     def get(self, restaurant_id):
         for restaurant in self.restaurants:
 
@@ -60,7 +59,6 @@ class RestaurantItemEndpoint(MethodView):
                 return jsonify(restaurant), 200
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
-    #@swag_from("yaml\\restaurant_item.yml")
     def put(self, restaurant_id):
         content = request.json
         validation.put_validation(content)

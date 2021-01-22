@@ -12,9 +12,9 @@ def test_put_wrong_format(test_client, body, description, mocker_restaurant_item
 
 
 @pytest.mark.parametrize("body, description", [
-    ({"address": "Minsk", "id": 5, "work_time": "Monday-Sunday: 08:00 - 23:45", "phone_number": "+375297777777"},
+    ({"address": "Minsk", "work_time": "Monday-Sunday: 08:00 - 23:45", "phone_number": "+375297777777"},
      "Sent data not correct, doesn\'t match format"),
-    ({"address": "Minsk", "id": "a", "work_time": "Monday-Sunday: 08:00 - 23:45", "phone_number": "+375297777777",
+    ({"address": "Minsk", "work_time": "Monday-Sunday: 08:00 - 23:45", "phone_number": ["+375297777777"],
       "name": "Vasilki"},
      "Type of sent data not correct"),
     (None, "Required data not available(No data)")])

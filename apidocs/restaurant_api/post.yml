@@ -15,9 +15,6 @@ post:
         - work_time
         - phone_number
       properties:
-        id:
-          type: integer
-          description: id of new restaurant
         name:
           type: string
           description: name of new restaurant
