@@ -1,0 +1,49 @@
+RestaurantItemEndpoint
+---
+tags:
+  - restaurants
+get:
+  description: get one restaurant
+  parameters:
+  - name: restaurant_id
+    in: path
+    required: true
+    schema:
+      type: integer
+    examples:
+      "get restaurant one":
+        value: 1
+
+responses:
+  200:
+    description: OK
+    content:
+      application/json:
+        schema:
+          type: object
+          proporties:
+            id: integer
+            name: string
+            address: string
+            work_time: string
+            phone_number: string
+        examples:
+          "get restaurant one":
+            value: {"address": "Minsk", "id": 1, "name": "Vasilki", "phone_number": "+375297777777",
+                     "work_time": "Monday-Sunday: 08:00 - 23:45"}
+  404:
+    description: Not Found
+    content:
+      application/json:
+        example:
+          {
+            "description": "Restaurant with such ID doesn't exist",
+            "name": "Not Found"
+          }
+
+
+
+
+
+
+

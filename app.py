@@ -3,11 +3,12 @@ import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
+from flasgger import Swagger, swag_from
 from error_handling import CustomError, ValidationError, WrongIdError
 
 
 class Validation:
-    pattern = {'id': int, 'name': str, 'address': str, "work_time": str, "phone_number": str}
+    pattern = {'name': str, 'address': str, "work_time": str, "phone_number": str}
 
     @staticmethod
     def empty(content):
@@ -33,7 +34,6 @@ validation = Validation()
 
 
 class RestaurantEndpoint(MethodView):
-    
     def __init__(self, restaurants):
         self.restaurants = restaurants
 
@@ -43,6 +43,7 @@ class RestaurantEndpoint(MethodView):
     def post(self):
         content = request.json
         validation.post_validation(content)
+        content['id'] = self.restaurants[len(self.restaurants) - 1]['id'] + 1
         self.restaurants.append(content)
         return jsonify(self.restaurants), 201
 
@@ -53,6 +54,7 @@ class RestaurantItemEndpoint(MethodView):
 
     def get(self, restaurant_id):
         for restaurant in self.restaurants:
+
             if restaurant["id"] == restaurant_id:
                 return jsonify(restaurant), 200
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
@@ -103,13 +105,23 @@ def create_app():
     else:
         os.environ['FLASK_ENV'] = 'production'
         application.config.from_object('config.ProdConfig')
+    application.config['SWAGGER'] = {
+        "uiversion": 3,
+        "openapi": "3.0.3",
+        'title': 'Delivery System API',
+        'description': 'Documentation for Delivery App by Varvara M.',
+        'doc_dir': './apidocs/'
 
+    }
+    Swagger(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-    with open(path, "r") as read_file:
-        data = json.load(read_file)
+    try:
+        with open(path, "r") as read_file:
+            data = json.load(read_file)
+    except TypeError:
+        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
     register_url_rules(application, data['restaurants'])
     register_error_handlers(application)
-
     return application
 
 
@@ -118,3 +130,4 @@ app = create_app()
 
 if __name__ == '__main__':
     app.run()
+
