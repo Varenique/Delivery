@@ -1,7 +1,7 @@
 FROM python:3
 
-ARG PATH_FOR_INITIAL_DATA="restaurants.json"
-ENV PATH_FOR_INITIAL_DATA="${PATH_FOR_INITIAL_DATA}"
+ENV PATH_FOR_INITIAL_DATA=None
+
 # set a directory for the app
 WORKDIR /app
 
@@ -15,4 +15,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5000
 
 # run the command
-CMD ["python", "./app.py"]
+ENTRYPOINT ["python", "./app.py"]
