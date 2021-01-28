@@ -14,5 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # tell the port number the container should expose
 EXPOSE 5000
 
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT ["sh", "entrypoint.sh"]
 # run the command
-ENTRYPOINT ["python", "./app.py"]
+#ENTRYPOINT ["python", "./app.py"]
