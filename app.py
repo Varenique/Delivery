@@ -3,34 +3,17 @@ import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from flasgger import Swagger, swag_from
-from error_handling import CustomError, ValidationError, WrongIdError
+from error_handling import CustomError, WrongIdError
+from flasgger import Swagger, SwaggerView, Schema, fields
+from marshmallow import Schema, fields, ValidationError
 
 
-class Validation:
-    pattern = {'name': str, 'address': str, "work_time": str, "phone_number": str}
-
-    @staticmethod
-    def empty(content):
-        if content is None:
-            raise ValidationError(description="Required data not available(No data)")
-
-    def put_validation(self, content):
-        self.empty(content)
-        for key in content.keys():
-            if key not in self.pattern.keys() or type(content[key]) != self.pattern[key]:
-                raise ValidationError(description="Required data not correct, doesn't match format")
-
-    def post_validation(self, content):
-        self.empty(content)
-        if content.keys() != self.pattern.keys():
-            raise ValidationError(description="Sent data not correct, doesn't match format")
-        for key, value in self.pattern.items():
-            if type(content[key]) != value:
-                raise ValidationError(description="Type of sent data not correct")
-
-
-validation = Validation()
+class RestaurantCreateOrUpdateSchema(Schema):
+    name = fields.Str(required=True)
+    address = fields.Str(required=True)
+    work_time = fields.Str(required=True)
+    phone_number = fields.Str(required=True)
+    id = fields.Int(dump_only=True)
 
 
 class RestaurantEndpoint(MethodView):
@@ -42,7 +25,8 @@ class RestaurantEndpoint(MethodView):
 
     def post(self):
         content = request.json
-        validation.post_validation(content)
+        schema = RestaurantCreateOrUpdateSchema()
+        schema.load(content)
         content['id'] = self.restaurants[len(self.restaurants) - 1]['id'] + 1
         self.restaurants.append(content)
         return jsonify(self.restaurants), 201
@@ -61,13 +45,21 @@ class RestaurantItemEndpoint(MethodView):
 
     def put(self, restaurant_id):
         content = request.json
-        validation.put_validation(content)
+        schema = RestaurantCreateOrUpdateSchema(partial=True)
+        schema.load(content)
         for restaurant in self.restaurants:
             if restaurant["id"] == restaurant_id:
                 for key, value in content.items():
                     restaurant[key] = value
                 return jsonify(restaurant), 200
         raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
+
+
+def handle_validation_error(ex):
+    return jsonify({
+        "name": "Bad Request",
+        "description": ex.messages
+    }), 400
 
 
 def handle_exception(ex):
@@ -94,6 +86,7 @@ def register_url_rules(app, restaurants):
 def register_error_handlers(app):
     app.register_error_handler(CustomError, handle_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
+    app.register_error_handler(ValidationError, handle_validation_error)
 
 
 def create_app():
@@ -111,7 +104,6 @@ def create_app():
         'title': 'Delivery System API',
         'description': 'Documentation for Delivery App by Varvara M.',
         'doc_dir': './apidocs/'
-
     }
     Swagger(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
