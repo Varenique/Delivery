@@ -3,8 +3,8 @@ import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from error_handling import CustomError, WrongIdError
-from flasgger import Swagger, SwaggerView, Schema, fields
+from src.error_handling import CustomError, WrongIdError
+from flasgger import Swagger
 from marshmallow import Schema, fields, ValidationError
 
 
