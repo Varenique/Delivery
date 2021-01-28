@@ -121,5 +121,5 @@ app = create_app()
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(app.config.get("HOST"), port=int(app.config.get("PORT", 5000)))
 
