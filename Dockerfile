@@ -1,4 +1,4 @@
-FROM python:3
+FROM python:3.7.3
 
 ENV PATH_FOR_INITIAL_DATA=None
 
@@ -10,6 +10,7 @@ COPY . /app
 
 # install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install gunicorn==20.0.4
 
 # tell the port number the container should expose
 EXPOSE 5000

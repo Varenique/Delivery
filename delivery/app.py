@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, jsonify
 from flask.views import MethodView
 from werkzeug.exceptions import HTTPException
-from src.error_handling import CustomError, WrongIdError
+from delivery.error_handling import CustomError, WrongIdError
 from flasgger import Swagger
 from marshmallow import Schema, fields, ValidationError
 
@@ -91,13 +91,13 @@ def register_error_handlers(app):
 
 def create_app():
     application = Flask(__name__)
-    application.config.from_object('config.Config')
+    application.config.from_object('delivery.config.Config')
     env = os.environ.get('FLASK_ENV', 'production')
     if env == 'development':
-        application.config.from_object('config.DevConfig')
+        application.config.from_object('delivery.config.DevConfig')
     else:
         os.environ['FLASK_ENV'] = 'production'
-        application.config.from_object('config.ProdConfig')
+        application.config.from_object('delivery.config.ProdConfig')
     application.config['SWAGGER'] = {
         "uiversion": 3,
         "openapi": "3.0.3",

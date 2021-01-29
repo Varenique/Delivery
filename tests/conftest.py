@@ -1,5 +1,5 @@
 import pytest
-from src.app import create_app
+from src.delivery.app import create_app
 
 
 @pytest.fixture(scope='module')
