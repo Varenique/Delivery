@@ -1,6 +1,5 @@
 import pytest
-from app import create_app
-import app
+from delivery.app import create_app
 
 
 @pytest.fixture(scope='module')
@@ -23,7 +22,7 @@ def all_restaurants():
 def mocker_restaurant_endpoint(mocker, all_restaurants):
     def new_init(self, restaurants):
         self.restaurants = all_restaurants
-    yield mocker.patch('app.RestaurantEndpoint.__init__', new_init)
+    yield mocker.patch('delivery.app.RestaurantEndpoint.__init__', new_init)
 
 
 @pytest.fixture()
@@ -31,5 +30,5 @@ def mocker_restaurant_item_endpoint(mocker, all_restaurants):
     def new_init(self, restaurants):
         self.restaurants = all_restaurants
 
-    yield mocker.patch('app.RestaurantItemEndpoint.__init__', new_init)
+    yield mocker.patch('delivery.app.RestaurantItemEndpoint.__init__', new_init)
 
