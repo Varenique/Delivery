@@ -13,9 +13,9 @@ def test_client():
 @pytest.fixture()
 def all_restaurants():
     return [{"address": "Minsk", "id": 0, "name": "Vasilki", "phone_number": "+375297777777",
-                             "work_time": "Monday-Sunday: 08:00 - 23:45"},
-                            {"address": "Minsk", "id": 1, "name": "Mama Doma", "phone_number": "+375336666666",
-                             "work_time": "Monday-Sunday: 10:00 - 22:00"}]
+             "work_time": "Monday-Sunday: 08:00 - 23:45"},
+            {"address": "Minsk", "id": 1, "name": "Mama Doma", "phone_number": "+375336666666",
+             "work_time": "Monday-Sunday: 10:00 - 22:00"}]
 
 
 @pytest.fixture()
