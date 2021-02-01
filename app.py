@@ -6,6 +6,44 @@ from werkzeug.exceptions import HTTPException
 from error_handling import CustomError, WrongIdError
 from flasgger import Swagger, SwaggerView, Schema, fields
 from marshmallow import Schema, fields, ValidationError
+from abc import ABC, abstractmethod
+
+
+class AbstractRestaurantRepository(ABC):
+    @abstractmethod
+    def save(self, content, restaurant_id):
+        pass
+
+    @abstractmethod
+    def get_all(self):
+        pass
+
+    @abstractmethod
+    def get_by_id(self, id):
+        pass
+
+
+class MemoryRestaurantRepository(AbstractRestaurantRepository):
+    def __init__(self, path):
+        try:
+            with open(path, "r") as read_file:
+                data = json.load(read_file)
+                self.restaurants = data['restaurants']
+        except TypeError:
+            raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
+
+    def save(self, content, restaurant_id=None):
+        if restaurant_id is None or restaurant_id >= len(self.restaurants):
+            self.restaurants.append(content)
+        else:
+            for key, value in content.items():
+                self.restaurants[restaurant_id][key] = value
+
+    def get_all(self):
+        return self.restaurants
+
+    def get_by_id(self, id):
+        return self.restaurants[id]
 
 
 class RestaurantCreateOrUpdateSchema(Schema):
@@ -21,15 +59,16 @@ class RestaurantEndpoint(MethodView):
         self.restaurants = restaurants
 
     def get(self):
-        return jsonify(self.restaurants), 200
+        return jsonify(self.restaurants.get_all()), 200
 
     def post(self):
         content = request.json
         schema = RestaurantCreateOrUpdateSchema()
         schema.load(content)
-        content['id'] = self.restaurants[len(self.restaurants) - 1]['id'] + 1
-        self.restaurants.append(content)
-        return jsonify(self.restaurants), 201
+        id = len(self.restaurants.get_all())
+        content['id'] = id
+        self.restaurants.save(content)
+        return jsonify(self.restaurants.get_all()), 201
 
 
 class RestaurantItemEndpoint(MethodView):
@@ -37,22 +76,20 @@ class RestaurantItemEndpoint(MethodView):
         self.restaurants = restaurants
 
     def get(self, restaurant_id):
-        for restaurant in self.restaurants:
-
-            if restaurant["id"] == restaurant_id:
-                return jsonify(restaurant), 200
-        raise WrongIdError(description="Restaurant with such ID doesn't exist")
+        try:
+            return jsonify(self.restaurants.get_by_id(restaurant_id)), 200
+        except IndexError:
+            raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
     def put(self, restaurant_id):
         content = request.json
         schema = RestaurantCreateOrUpdateSchema(partial=True)
         schema.load(content)
-        for restaurant in self.restaurants:
-            if restaurant["id"] == restaurant_id:
-                for key, value in content.items():
-                    restaurant[key] = value
-                return jsonify(restaurant), 200
-        raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
+        self.restaurants.save(content, restaurant_id)
+        try:
+            return jsonify(self.restaurants.get_by_id(restaurant_id)), 200
+        except IndexError:
+            raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
 
 
 def handle_validation_error(ex):
@@ -107,12 +144,8 @@ def create_app():
     }
     Swagger(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-    try:
-        with open(path, "r") as read_file:
-            data = json.load(read_file)
-    except TypeError:
-        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
-    register_url_rules(application, data['restaurants'])
+    data = MemoryRestaurantRepository(path)
+    register_url_rules(application, data)
     register_error_handlers(application)
     return application
 

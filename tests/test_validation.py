@@ -4,7 +4,7 @@ import pytest
 @pytest.mark.parametrize("body, description", [({"name": 5}, "Required data not correct, doesn\'t match format"),
                                                ({"nami": "Hotfix"}, "Required data not correct, doesn\'t match format"),
                                                (None, "Required data not available(No data)")])
-def test_put_wrong_format(test_client, body, description, mocker_restaurant_item_endpoint):
+def test_put_wrong_format(test_client, body, description):
     response = test_client.put('/api/restaurants/0', json=body)
     assert response.status_code == 400
     assert response.get_json()["name"] == "Bad Request"
@@ -17,7 +17,7 @@ def test_put_wrong_format(test_client, body, description, mocker_restaurant_item
       "name": "Vasilki"},
      "Type of sent data not correct"),
     (None, "Required data not available(No data)")])
-def test_post_wrong_format(test_client, body, description, mocker_restaurant_endpoint):
+def test_post_wrong_format(test_client, body, description):
     response = test_client.post('/api/restaurants', json=body)
     assert response.status_code == 400
     assert response.get_json()["name"] == "Bad Request"
