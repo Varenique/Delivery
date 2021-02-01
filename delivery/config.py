@@ -5,6 +5,7 @@ basedir = path.abspath(path.dirname(__file__))
 
 
 class Config:
+    FLASK_APP = "delivery"
     TESTING = False
     DEBUG = False
     PATH_FOR_INITIAL_DATA = None

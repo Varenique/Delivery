@@ -7,7 +7,7 @@ with open('requirements-test.txt') as f:
     requirements_test = f.read().splitlines()
 
 setup(
-    name='delivery_system',
+    name='delivery',
     version='1.0.0',
     author="Varvara Minkina",
     description="Simple version of delivery system",
