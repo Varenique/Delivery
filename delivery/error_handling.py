@@ -1,7 +1,7 @@
 class CustomError(Exception):
-    def __init__(self, description: str, status_code: int, name: str):
+    def __init__(self, description: str, code: int, name: str):
         self.description = description
-        self.status_code = status_code
+        self.code = code
         self.name = name
 
     def __str__(self):
@@ -10,7 +10,7 @@ class CustomError(Exception):
 
 class WrongIdError(CustomError):
     def __init__(self, description: str):
-        super().__init__(name="Not Found", status_code=404, description=description)
+        super().__init__(name="Not Found", code=404, description=description)
 
 
 

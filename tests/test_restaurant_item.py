@@ -7,7 +7,7 @@ def test_get_nonexisten(test_client):
 def test_put_nonexisten(test_client):
     response = test_client.put('/api/restaurants/3000', json={"name": "Hotfix"})
     assert response.status_code == 404
-    assert {"description": "No restaurant to update. Restaurant with such ID doesn\'t exist",
+    assert {"description": "Restaurant with such ID doesn\'t exist",
             "name": "Not Found"} == response.get_json()
 
 
