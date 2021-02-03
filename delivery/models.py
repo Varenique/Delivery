@@ -1,25 +1,23 @@
 from flask import jsonify, request
 from flask.views import MethodView
+from dataclasses import dataclass
 from marshmallow import ValidationError
 from delivery.repositories import AbstractRestaurantRepository, MemoryRestaurantRepository
 
 
+@dataclass
 class Restaurant:
-    def __init__(self, name, address, work_time, phone_number):
-        self.id = 0
-        self.name = name
-        self.address = address
-        self.work_time = work_time
-        self.phone_number = phone_number
-
-
-from delivery.schemas import RestaurantCreateOrUpdateSchema
+    name: str
+    address: str
+    work_time: str
+    phone_number: str
+    id: int = 0
 
 
 class RestaurantEndpoint(MethodView):
-    def __init__(self, restaurants: AbstractRestaurantRepository):
+    def __init__(self, restaurants: AbstractRestaurantRepository, schema):
         self.restaurants = restaurants
-        self.schema = RestaurantCreateOrUpdateSchema()
+        self.schema = schema
 
     def get(self):
         return jsonify([self.schema.dump(restaurant) for restaurant in self.restaurants.get_all()]), 200
@@ -31,14 +29,14 @@ class RestaurantEndpoint(MethodView):
 
 
 class RestaurantItemEndpoint(MethodView):
-    def __init__(self, restaurants: AbstractRestaurantRepository):
+    def __init__(self, restaurants: AbstractRestaurantRepository, schema):
         self.restaurants = restaurants
-        self.schema = RestaurantCreateOrUpdateSchema(partial=True)
+        self.schema = schema
 
-    def get(self, restaurant_id):
+    def get(self, restaurant_id: int):
         return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200
 
-    def put(self, restaurant_id):
+    def put(self, restaurant_id: int):
         content = request.json
         errors = self.schema.validate(content)
         if errors != {}:

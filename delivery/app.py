@@ -24,19 +24,23 @@ def handle_standard_exception(ex):
     }), ex.code
 
 
-def register_url_rules(app, restaurants):
-    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api", restaurants))
+def register_url_rules(app: Flask, restaurants: MemoryRestaurantRepository):
+    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api",
+                                                                              restaurants,
+                                                                              RestaurantCreateOrUpdateSchema()))
     app.add_url_rule("/api/restaurants/<int:restaurant_id>",
-                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api", restaurants))
+                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api",
+                                                              restaurants,
+                                                              RestaurantCreateOrUpdateSchema(partial=True)))
 
 
-def register_error_handlers(app):
+def register_error_handlers(app: Flask):
     app.register_error_handler(CustomError, handle_standard_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
     app.register_error_handler(ValidationError, handle_validation_error)
 
 
-def read_restaurants(path, repository):
+def read_restaurants(path: str, repository: MemoryRestaurantRepository):
     try:
         with open(path, "r") as read_file:
             data = json.load(read_file)

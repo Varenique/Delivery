@@ -5,31 +5,30 @@ from delivery.error_handling import WrongIdError
 class AbstractRestaurantRepository(ABC):
     @abstractmethod
     def create(self, content):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def update(self, content, restaurant_id):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
     def get_all(self):
-        pass
+        raise NotImplementedError
 
     @abstractmethod
-    def get_by_id(self, id):
-        pass
+    def get_by_id(self, restaurant_id):
+        raise NotImplementedError
 
 
 class MemoryRestaurantRepository(AbstractRestaurantRepository):
-    restaurants = []
-    # def __init__(self, restaurants=None):
-    #     self.restaurants = restaurants or []
+    def __init__(self, restaurants=None):
+        self.restaurants = restaurants or []
 
     def create(self, content):
         content.id = len(self.restaurants)
         self.restaurants.append(content)
 
-    def update(self, content_dictionary, restaurant_id):
+    def update(self, content_dictionary, restaurant_id: int):
         for restaurant in self.restaurants:
             if restaurant.id == restaurant_id:
                 for key, value in content_dictionary.items():
@@ -40,7 +39,7 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
     def get_all(self):
         return self.restaurants
 
-    def get_by_id(self, restaurant_id):
+    def get_by_id(self, restaurant_id: int):
         for restaurant in self.restaurants:
             if restaurant.id == restaurant_id:
                 return restaurant
