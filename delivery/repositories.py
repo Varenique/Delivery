@@ -1,14 +1,15 @@
 from abc import ABC, abstractmethod
 from delivery.error_handling import WrongIdError
+from delivery.models import Restaurant
 
 
 class AbstractRestaurantRepository(ABC):
     @abstractmethod
-    def create(self, content):
+    def create(self, content: Restaurant):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, content, restaurant_id):
+    def update(self, content: Restaurant):
         raise NotImplementedError
 
     @abstractmethod
@@ -24,15 +25,16 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
     def __init__(self, restaurants=None):
         self.restaurants = restaurants or []
 
-    def create(self, content):
+    def create(self, content: Restaurant):
         content.id = len(self.restaurants)
         self.restaurants.append(content)
 
-    def update(self, content_dictionary, restaurant_id: int):
+    def update(self, content: Restaurant):
         for restaurant in self.restaurants:
-            if restaurant.id == restaurant_id:
-                for key, value in content_dictionary.items():
-                    setattr(restaurant, key, value)
+            if restaurant.id == content.id:
+                for key in ["name", "address", "work_time", "phone_number"]:
+                    if getattr(content, key) != "":
+                        setattr(restaurant, key, getattr(content, key))
                 return
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 

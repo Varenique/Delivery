@@ -5,7 +5,7 @@ from werkzeug.exceptions import HTTPException
 from delivery.error_handling import CustomError
 from flasgger import Swagger
 from marshmallow import ValidationError
-from delivery.models import RestaurantEndpoint, RestaurantItemEndpoint
+from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
 from delivery.repositories import MemoryRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
 
