@@ -29,10 +29,10 @@ def mocker_restaurant_endpoint(mocker, all_restaurants):
     second.id = 1
     new_repo = MemoryRestaurantRepository([first, second])
 
-    def new_init(self, restaurants):
+    def new_init(self, restaurants, schema):
         self.restaurants = new_repo
-        self.schema = RestaurantCreateOrUpdateSchema()
-    yield mocker.patch('delivery.models.RestaurantEndpoint.__init__', new_init)
+        self.schema = schema = RestaurantCreateOrUpdateSchema()
+    yield mocker.patch('delivery.routes.RestaurantEndpoint.__init__', new_init)
 
 
 @pytest.fixture(autouse=True)
@@ -42,7 +42,7 @@ def mocker_restaurant_item_endpoint(mocker, all_restaurants):
     second.id = 1
     new_repo = MemoryRestaurantRepository([first, second])
 
-    def new_init(self, restaurants):
+    def new_init(self, restaurants, schema):
         self.restaurants = new_repo
         self.schema = RestaurantCreateOrUpdateSchema(partial=True)
-    yield mocker.patch('delivery.models.RestaurantItemEndpoint.__init__', new_init)
+    yield mocker.patch('delivery.routes.RestaurantItemEndpoint.__init__', new_init)

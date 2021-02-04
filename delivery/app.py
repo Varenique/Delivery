@@ -40,7 +40,7 @@ def register_error_handlers(app: Flask):
     app.register_error_handler(ValidationError, handle_validation_error)
 
 
-def read_restaurants(path: str, repository: MemoryRestaurantRepository):
+def read_restaurants(path: str, repository: MemoryRestaurantRepository) -> None:
     try:
         with open(path, "r") as read_file:
             data = json.load(read_file)
@@ -52,7 +52,7 @@ def read_restaurants(path: str, repository: MemoryRestaurantRepository):
         raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
 
 
-def create_app():
+def create_app() -> Flask:
     application = Flask(__name__)
     application.config.from_object('delivery.config.Config')
     env = os.environ.get('FLASK_ENV', 'production')

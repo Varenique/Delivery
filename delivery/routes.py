@@ -1,6 +1,5 @@
 from flask import jsonify, request
 from flask.views import MethodView
-from marshmallow import ValidationError
 from delivery.repositories import AbstractRestaurantRepository
 
 
