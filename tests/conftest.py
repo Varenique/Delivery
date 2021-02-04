@@ -1,5 +1,8 @@
 import pytest
 from delivery.app import create_app
+from delivery.schemas import RestaurantCreateOrUpdateSchema
+from delivery.models import Restaurant
+from delivery.repositories import MemoryRestaurantRepository
 
 
 @pytest.fixture(scope='module')
@@ -12,23 +15,34 @@ def test_client():
 
 @pytest.fixture()
 def all_restaurants():
+
     return [{"address": "Minsk", "id": 0, "name": "Vasilki", "phone_number": "+375297777777",
              "work_time": "Monday-Sunday: 08:00 - 23:45"},
             {"address": "Minsk", "id": 1, "name": "Mama Doma", "phone_number": "+375336666666",
              "work_time": "Monday-Sunday: 10:00 - 22:00"}]
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def mocker_restaurant_endpoint(mocker, all_restaurants):
-    def new_init(self, restaurants):
-        self.restaurants = all_restaurants
-    yield mocker.patch('delivery.app.RestaurantEndpoint.__init__', new_init)
+    first = Restaurant("Vasilki", "Minsk", "Monday-Sunday: 08:00 - 23:45", "+375297777777")
+    second = Restaurant("Mama Doma", "Minsk", "Monday-Sunday: 10:00 - 22:00", "+375336666666")
+    second.id = 1
+    new_repo = MemoryRestaurantRepository([first, second])
+
+    def new_init(self, restaurants, schema):
+        self.restaurants = new_repo
+        self.schema = schema = RestaurantCreateOrUpdateSchema()
+    yield mocker.patch('delivery.routes.RestaurantEndpoint.__init__', new_init)
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def mocker_restaurant_item_endpoint(mocker, all_restaurants):
-    def new_init(self, restaurants):
-        self.restaurants = all_restaurants
+    first = Restaurant("Vasilki", "Minsk", "Monday-Sunday: 08:00 - 23:45", "+375297777777")
+    second = Restaurant("Mama Doma", "Minsk", "Monday-Sunday: 10:00 - 22:00", "+375336666666")
+    second.id = 1
+    new_repo = MemoryRestaurantRepository([first, second])
 
-    yield mocker.patch('delivery.app.RestaurantItemEndpoint.__init__', new_init)
-
+    def new_init(self, restaurants, schema):
+        self.restaurants = new_repo
+        self.schema = RestaurantCreateOrUpdateSchema(partial=True)
+    yield mocker.patch('delivery.routes.RestaurantItemEndpoint.__init__', new_init)

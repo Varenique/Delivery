@@ -1,58 +1,13 @@
 import json
 import os
-from flask import Flask, request, jsonify
-from flask.views import MethodView
+from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
-from delivery.error_handling import CustomError, WrongIdError
+from delivery.error_handling import CustomError
 from flasgger import Swagger
-from marshmallow import Schema, fields, ValidationError
-
-
-class RestaurantCreateOrUpdateSchema(Schema):
-    name = fields.Str(required=True)
-    address = fields.Str(required=True)
-    work_time = fields.Str(required=True)
-    phone_number = fields.Str(required=True)
-    id = fields.Int(dump_only=True)
-
-
-class RestaurantEndpoint(MethodView):
-    def __init__(self, restaurants):
-        self.restaurants = restaurants
-
-    def get(self):
-        return jsonify(self.restaurants), 200
-
-    def post(self):
-        content = request.json
-        schema = RestaurantCreateOrUpdateSchema()
-        schema.load(content)
-        content['id'] = self.restaurants[len(self.restaurants) - 1]['id'] + 1
-        self.restaurants.append(content)
-        return jsonify(self.restaurants), 201
-
-
-class RestaurantItemEndpoint(MethodView):
-    def __init__(self, restaurants):
-        self.restaurants = restaurants
-
-    def get(self, restaurant_id):
-        for restaurant in self.restaurants:
-
-            if restaurant["id"] == restaurant_id:
-                return jsonify(restaurant), 200
-        raise WrongIdError(description="Restaurant with such ID doesn't exist")
-
-    def put(self, restaurant_id):
-        content = request.json
-        schema = RestaurantCreateOrUpdateSchema(partial=True)
-        schema.load(content)
-        for restaurant in self.restaurants:
-            if restaurant["id"] == restaurant_id:
-                for key, value in content.items():
-                    restaurant[key] = value
-                return jsonify(restaurant), 200
-        raise WrongIdError(description="No restaurant to update. Restaurant with such ID doesn't exist")
+from marshmallow import ValidationError
+from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
+from delivery.repositories import MemoryRestaurantRepository
+from delivery.schemas import RestaurantCreateOrUpdateSchema
 
 
 def handle_validation_error(ex):
@@ -62,34 +17,42 @@ def handle_validation_error(ex):
     }), 400
 
 
-def handle_exception(ex):
-    return jsonify({
-        "name": ex.name,
-        "description": ex.description
-    }), ex.status_code
-
-
 def handle_standard_exception(ex):
     return jsonify({
-        "code": ex.code,
         "name": ex.name,
         "description": ex.description,
     }), ex.code
 
 
-def register_url_rules(app, restaurants):
-    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api", restaurants))
+def register_url_rules(app: Flask, restaurants: MemoryRestaurantRepository):
+    app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api",
+                                                                              restaurants,
+                                                                              RestaurantCreateOrUpdateSchema()))
     app.add_url_rule("/api/restaurants/<int:restaurant_id>",
-                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api", restaurants))
+                     view_func=RestaurantItemEndpoint.as_view("restaurant_item_api",
+                                                              restaurants,
+                                                              RestaurantCreateOrUpdateSchema(partial=True)))
 
 
-def register_error_handlers(app):
-    app.register_error_handler(CustomError, handle_exception)
+def register_error_handlers(app: Flask):
+    app.register_error_handler(CustomError, handle_standard_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
     app.register_error_handler(ValidationError, handle_validation_error)
 
 
-def create_app():
+def read_restaurants(path: str, repository: MemoryRestaurantRepository) -> None:
+    try:
+        with open(path, "r") as read_file:
+            data = json.load(read_file)
+            schema = RestaurantCreateOrUpdateSchema()
+            for restaurant in data['restaurants']:
+                a = schema.load(restaurant)
+                repository.create(a)
+    except TypeError:
+        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
+
+
+def create_app() -> Flask:
     application = Flask(__name__)
     application.config.from_object('delivery.config.Config')
     env = os.environ.get('FLASK_ENV', 'production')
@@ -107,12 +70,9 @@ def create_app():
     }
     Swagger(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-    try:
-        with open(path, "r") as read_file:
-            data = json.load(read_file)
-    except TypeError:
-        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
-    register_url_rules(application, data['restaurants'])
+    repository = MemoryRestaurantRepository()
+    read_restaurants(path, repository)
+    register_url_rules(application, repository)
     register_error_handlers(application)
     return application
 
