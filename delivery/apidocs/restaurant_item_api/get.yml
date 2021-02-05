@@ -9,7 +9,7 @@ get:
     in: path
     required: true
     schema:
-      type: integer
+      type: string
     examples:
       "get restaurant one":
         value: 1
@@ -22,7 +22,7 @@ responses:
         schema:
           type: object
           proporties:
-            id: integer
+            id: string
             name: string
             address: string
             work_time: string

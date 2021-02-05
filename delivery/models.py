@@ -1,10 +1,13 @@
-from dataclasses import dataclass
+from delivery.db import db
+import mongoengine_goodjson as gj
 
 
-@dataclass
-class Restaurant:
-    name: str = ""
-    address: str = ""
-    work_time: str = ""
-    phone_number: str = ""
-    id: int = 0
+class Restaurant(gj.Document):
+    name = db.StringField()
+    address = db.StringField()
+    work_time = db.StringField()
+    phone_number = db.StringField()
+
+    def to_json(self):
+        return {key: getattr(self, key) for key in ['id', 'name', 'address', 'work_time', 'phone_number']
+                if getattr(self, key) is not None}

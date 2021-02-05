@@ -8,6 +8,9 @@ from marshmallow import ValidationError
 from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
 from delivery.repositories import MemoryRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
+from flask_pymongo import PyMongo
+from flask_mongoengine import MongoEngine
+from delivery.db import initialize_db
 
 
 def handle_validation_error(ex):
@@ -28,7 +31,7 @@ def register_url_rules(app: Flask, restaurants: MemoryRestaurantRepository):
     app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api",
                                                                               restaurants,
                                                                               RestaurantCreateOrUpdateSchema()))
-    app.add_url_rule("/api/restaurants/<int:restaurant_id>",
+    app.add_url_rule("/api/restaurants/<restaurant_id>",
                      view_func=RestaurantItemEndpoint.as_view("restaurant_item_api",
                                                               restaurants,
                                                               RestaurantCreateOrUpdateSchema(partial=True)))
@@ -38,18 +41,6 @@ def register_error_handlers(app: Flask):
     app.register_error_handler(CustomError, handle_standard_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
     app.register_error_handler(ValidationError, handle_validation_error)
-
-
-def read_restaurants(path: str, repository: MemoryRestaurantRepository) -> None:
-    try:
-        with open(path, "r") as read_file:
-            data = json.load(read_file)
-            schema = RestaurantCreateOrUpdateSchema()
-            for restaurant in data['restaurants']:
-                a = schema.load(restaurant)
-                repository.create(a)
-    except TypeError:
-        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
 
 
 def create_app() -> Flask:
@@ -66,19 +57,22 @@ def create_app() -> Flask:
         "openapi": "3.0.3",
         'title': 'Delivery System API',
         'description': 'Documentation for Delivery App by Varvara M.',
-        'doc_dir': './apidocs/'
+        'doc_dir': 'delivery/apidocs/'
+    }
+    db_name = application.config.get('DB_NAME', 'mongodb://localhost/test')
+    application.config['MONGODB_SETTINGS'] = {
+        'host': db_name
     }
     Swagger(application)
-    path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
     repository = MemoryRestaurantRepository()
-    read_restaurants(path, repository)
     register_url_rules(application, repository)
     register_error_handlers(application)
     return application
 
 
 app = create_app()
-
+db = MongoEngine()
+db.init_app(app)
 
 if __name__ == '__main__':
     app.run(app.config.get("HOST"), port=int(app.config.get("PORT", 5000)))
