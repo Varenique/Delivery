@@ -22,12 +22,12 @@ class RestaurantItemEndpoint(MethodView):
         self.restaurants = restaurants
         self.schema = schema
 
-    def get(self, restaurant_id: int):
+    def get(self, restaurant_id: str):
         return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200
 
     def put(self, restaurant_id: int):
         content = request.json
         restaurant = self.schema.load(content)
-        restaurant.id = restaurant_id
+        restaurant._id = restaurant_id
         self.restaurants.update(restaurant)
         return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200

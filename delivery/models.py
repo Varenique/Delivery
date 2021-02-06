@@ -7,4 +7,4 @@ class Restaurant:
     address: str = ""
     work_time: str = ""
     phone_number: str = ""
-    id: int = 0
+    _id: str = ""
