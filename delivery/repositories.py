@@ -58,7 +58,7 @@ class MongoRepository(AbstractRestaurantRepository):
     def create(self, content: Restaurant):
         content = asdict(content)
         content.pop("_id")
-        self.restaurants.db.restaurant.insert_one(content)
+        self.restaurants.restaurant.insert_one(content)
 
     def update(self, content: Restaurant):
         update_data = asdict(content)
@@ -69,17 +69,17 @@ class MongoRepository(AbstractRestaurantRepository):
         for key, value in asdict(content).items():
             if value == "" or key == "_id":
                 update_data.pop(key)
-        self.restaurants.db.restaurant.update_one(restaurant, {"$set": update_data})
+        self.restaurants.restaurant.update_one(restaurant, {"$set": update_data})
 
     def get_all(self):
         restaurants_list = []
-        for restaurant in self.restaurants.db.restaurant.find():
+        for restaurant in self.restaurants.restaurant.find({}):
             restaurants_list.append(Restaurant(**restaurant))
         return restaurants_list
 
     def get_by_id(self, restaurant_id):
         try:
-            restaurant = self.restaurants.db.restaurant.find_one({"_id": ObjectId(restaurant_id)})
+            restaurant = self.restaurants.restaurant.find_one({"_id": ObjectId(restaurant_id)})
             return Restaurant(**restaurant)
         except:
             raise WrongIdError(description="Restaurant with such ID doesn't exist")

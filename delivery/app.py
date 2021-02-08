@@ -8,7 +8,7 @@ from marshmallow import ValidationError
 from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
 from delivery.repositories import MemoryRestaurantRepository, MongoRepository, AbstractRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
-from flask_pymongo import PyMongo
+from pymongo import MongoClient
 
 
 def handle_validation_error(ex):
@@ -70,10 +70,12 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
-    path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
+    #path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
     application.config["MONGO_URI"] = "mongodb://localhost:27017/test"
-    mongo = PyMongo(application)
-    repository = MongoRepository(mongo)
+    #mongo = PyMongo(application)
+    client = MongoClient('localhost', 27017)
+    db = client.test
+    repository = MongoRepository(db)
     # repository = MemoryRestaurantRepository()
     # read_restaurants(path, repository)
     register_url_rules(application, repository)
