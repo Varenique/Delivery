@@ -1,4 +1,3 @@
-import json
 import os
 from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
@@ -6,7 +5,7 @@ from delivery.error_handling import CustomError
 from flasgger import Swagger
 from marshmallow import ValidationError
 from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
-from delivery.repositories import MemoryRestaurantRepository, MongoRepository, AbstractRestaurantRepository
+from delivery.repositories import MongoRepository, AbstractRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
 from pymongo import MongoClient
 
@@ -41,18 +40,6 @@ def register_error_handlers(app: Flask):
     app.register_error_handler(ValidationError, handle_validation_error)
 
 
-# def read_restaurants(path: str, repository: MemoryRestaurantRepository) -> None:
-#     try:
-#         with open(path, "r") as read_file:
-#             data = json.load(read_file)
-#             schema = RestaurantCreateOrUpdateSchema()
-#             for restaurant in data['restaurants']:
-#                 a = schema.load(restaurant)
-#                 repository.create(a)
-#     except TypeError:
-#         raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
-
-
 def create_app() -> Flask:
     application = Flask(__name__)
     application.config.from_object('delivery.config.Config')
@@ -70,9 +57,6 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
-    #path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-    application.config["MONGO_URI"] = "mongodb://localhost:27017/test"
-    #mongo = PyMongo(application)
     client = MongoClient('localhost', 27017)
     db = client.test
     repository = MongoRepository(db)
