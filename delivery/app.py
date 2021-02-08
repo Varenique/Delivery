@@ -5,10 +5,13 @@ from werkzeug.exceptions import HTTPException
 from delivery.error_handling import CustomError
 from flasgger import Swagger
 from marshmallow import ValidationError
-from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
+from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint, LoginEndpoint
 from delivery.repositories import MemoryRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
-
+from flask_jwt_extended import (
+    JWTManager, jwt_required, create_access_token,
+    get_jwt_identity
+)
 
 def handle_validation_error(ex):
     return jsonify({
@@ -32,6 +35,9 @@ def register_url_rules(app: Flask, restaurants: MemoryRestaurantRepository):
                      view_func=RestaurantItemEndpoint.as_view("restaurant_item_api",
                                                               restaurants,
                                                               RestaurantCreateOrUpdateSchema(partial=True)))
+
+    app.add_url_rule("/api/login", view_func=LoginEndpoint.as_view("login_api",
+                                                                   restaurants, RestaurantCreateOrUpdateSchema()))
 
 
 def register_error_handlers(app: Flask):
@@ -69,6 +75,8 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
+    application.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this!
+    jwt = JWTManager(application)
     path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
     repository = MemoryRestaurantRepository()
     read_restaurants(path, repository)
