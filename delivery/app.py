@@ -58,10 +58,8 @@ def create_app() -> Flask:
     }
     Swagger(application)
     client = MongoClient('localhost', 27017)
-    db = client.test
+    db = client.delivery
     repository = MongoRepository(db)
-    # repository = MemoryRestaurantRepository()
-    # read_restaurants(path, repository)
     register_url_rules(application, repository)
     register_error_handlers(application)
 
