@@ -4,7 +4,7 @@ from delivery.models import Restaurant
 from typing import Iterable
 from bson.objectid import ObjectId
 from dataclasses import asdict
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 
 
 class AbstractRestaurantRepository(ABC):
@@ -13,7 +13,7 @@ class AbstractRestaurantRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, content: Restaurant) -> None:
+    def update(self, content: Restaurant) -> Restaurant:
         raise NotImplementedError
 
     @abstractmethod
@@ -33,13 +33,13 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
         content.id = str(len(self.restaurants))
         self.restaurants.append(content)
 
-    def update(self, content: Restaurant) -> None:
+    def update(self, content: Restaurant) -> Restaurant:
         for restaurant in self.restaurants:
             if restaurant.id == content.id:
                 for key in ["name", "address", "work_time", "phone_number"]:
                     if getattr(content, key) != "":
                         setattr(restaurant, key, getattr(content, key))
-                return
+                return Restaurant
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
     def get_all(self) -> Iterable[Restaurant]:
@@ -61,13 +61,17 @@ class MongoRestaurantRepository(AbstractRestaurantRepository):
         content.pop("id")
         self.mongo_client.insert_one(content)
 
-    def update(self, content: Restaurant) -> None:
+    def update(self, content: Restaurant) -> Restaurant:
         update_data = asdict(content)
-        restaurant = {'_id': ObjectId(update_data["id"])}
+        restaurant_id = {'_id': ObjectId(update_data["id"])}
         for key, value in asdict(content).items():
             if value == "" or key == "id":
                 update_data.pop(key)
-        self.mongo_client.update_one(restaurant, {"$set": update_data})
+        restaurant = self.mongo_client.find_one_and_update(restaurant_id, {"$set": update_data}, return_document=ReturnDocument.AFTER)
+        if restaurant is None:
+            raise WrongIdError(description="Restaurant with such ID doesn't exist")
+        restaurant["id"] = restaurant.pop("_id")
+        return Restaurant(**restaurant)
 
     def get_all(self) -> Iterable[Restaurant]:
         restaurants_list = []

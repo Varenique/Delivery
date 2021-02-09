@@ -29,5 +29,4 @@ class RestaurantItemEndpoint(MethodView):
         content = request.json
         restaurant = self.schema.load(content)
         restaurant.id = restaurant_id
-        self.restaurants.update(restaurant)
-        return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200
+        return jsonify(self.schema.dump(self.restaurants.update(restaurant))), 200
