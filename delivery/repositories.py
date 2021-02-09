@@ -63,10 +63,7 @@ class MongoRestaurantRepository(AbstractRestaurantRepository):
 
     def update(self, content: Restaurant) -> None:
         update_data = asdict(content)
-        try:
-            restaurant = {'_id': ObjectId(update_data["id"])}
-        except:
-            raise WrongIdError(description="Restaurant with such ID doesn't exist")
+        restaurant = {'_id': ObjectId(update_data["id"])}
         for key, value in asdict(content).items():
             if value == "" or key == "id":
                 update_data.pop(key)
