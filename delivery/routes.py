@@ -13,8 +13,7 @@ class RestaurantEndpoint(MethodView):
 
     def post(self):
         content = request.json
-        self.restaurants.create(self.schema.load(content))
-        return jsonify([self.schema.dump(restaurant) for restaurant in self.restaurants.get_all()]), 201
+        return jsonify(self.schema.dump(self.restaurants.create(self.schema.load(content)))), 201
 
 
 class RestaurantItemEndpoint(MethodView):

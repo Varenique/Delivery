@@ -9,7 +9,7 @@ from pymongo import MongoClient, ReturnDocument
 
 class AbstractRestaurantRepository(ABC):
     @abstractmethod
-    def create(self, content: Restaurant) -> None:
+    def create(self, content: Restaurant) -> Restaurant:
         raise NotImplementedError
 
     @abstractmethod
@@ -29,9 +29,10 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
     def __init__(self, restaurants=None):
         self.restaurants = restaurants or []
 
-    def create(self, content: Restaurant) -> None:
+    def create(self, content: Restaurant) -> Restaurant:
         content.id = str(len(self.restaurants))
         self.restaurants.append(content)
+        return content
 
     def update(self, content: Restaurant) -> Restaurant:
         for restaurant in self.restaurants:
@@ -39,7 +40,7 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
                 for key in ["name", "address", "work_time", "phone_number"]:
                     if getattr(content, key) != "":
                         setattr(restaurant, key, getattr(content, key))
-                return Restaurant
+                return restaurant
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
     def get_all(self) -> Iterable[Restaurant]:
@@ -56,10 +57,12 @@ class MongoRestaurantRepository(AbstractRestaurantRepository):
     def __init__(self, mongo_client: MongoClient):
         self.mongo_client = mongo_client.restaurants
 
-    def create(self, content: Restaurant) -> None:
+    def create(self, content: Restaurant) -> Restaurant:
         content = asdict(content)
         content.pop("id")
-        self.mongo_client.insert_one(content)
+        return self.mongo_client.find_one_and_update({'name': ''},
+                                                     {'$set': content},
+                                                     upsert=True, return_document=ReturnDocument.AFTER)
 
     def update(self, content: Restaurant) -> Restaurant:
         update_data = asdict(content)
