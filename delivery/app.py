@@ -57,7 +57,7 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
-    mongo_client = MongoClient(application.config['DB_PATH'])
+    mongo_client = MongoClient(application.config['DB_CONNECTION'])
     db = mongo_client.delivery
     repository = MongoRestaurantRepository(db)
     register_url_rules(application, repository)

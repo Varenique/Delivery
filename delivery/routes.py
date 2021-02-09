@@ -9,11 +9,14 @@ class RestaurantEndpoint(MethodView):
         self.schema = schema
 
     def get(self):
-        return jsonify([self.schema.dump(restaurant) for restaurant in self.restaurants.get_all()]), 200
+        restaurants = [self.schema.dump(restaurant) for restaurant in self.restaurants.get_all()]
+        return jsonify(restaurants), 200
 
     def post(self):
         content = request.json
-        return jsonify(self.schema.dump(self.restaurants.create(self.schema.load(content)))), 201
+        restaurant = self.schema.load(content)
+        created_restaurant = self.restaurants.create(restaurant)
+        return jsonify(self.schema.dump(created_restaurant)), 201
 
 
 class RestaurantItemEndpoint(MethodView):
@@ -22,10 +25,12 @@ class RestaurantItemEndpoint(MethodView):
         self.schema = schema
 
     def get(self, restaurant_id: str):
-        return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200
+        restaurant = self.restaurants.get_by_id(restaurant_id)
+        return jsonify(self.schema.dump(restaurant)), 200
 
     def put(self, restaurant_id: int):
         content = request.json
         restaurant = self.schema.load(content)
         restaurant.id = restaurant_id
-        return jsonify(self.schema.dump(self.restaurants.update(restaurant))), 200
+        updated_restaurant = self.restaurants.update(restaurant)
+        return jsonify(self.schema.dump(updated_restaurant)), 200

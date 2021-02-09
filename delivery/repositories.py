@@ -85,10 +85,7 @@ class MongoRestaurantRepository(AbstractRestaurantRepository):
 
     def get_by_id(self, restaurant_id) -> Restaurant:
         restaurant = self.mongo_client.find_one({"_id": ObjectId(restaurant_id)})
-        try:
-            restaurant["id"] = restaurant.pop("_id")
-        except AttributeError:
+        if restaurant is None:
             raise WrongIdError(description="Restaurant with such ID doesn't exist")
+        restaurant["id"] = restaurant.pop("_id")
         return Restaurant(**restaurant)
-
-
