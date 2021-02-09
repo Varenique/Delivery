@@ -7,7 +7,7 @@ class RestaurantCreateOrUpdateSchema(Schema):
     address = fields.Str(required=True)
     work_time = fields.Str(required=True)
     phone_number = fields.Str(required=True)
-    _id = fields.Str(dump_only=True)
+    id = fields.Str(dump_only=True)
 
     @post_load
     def make_restaurant(self, content, **kwargs):

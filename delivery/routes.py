@@ -28,6 +28,6 @@ class RestaurantItemEndpoint(MethodView):
     def put(self, restaurant_id: int):
         content = request.json
         restaurant = self.schema.load(content)
-        restaurant._id = restaurant_id
+        restaurant.id = restaurant_id
         self.restaurants.update(restaurant)
         return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200

@@ -5,7 +5,7 @@ from delivery.error_handling import CustomError
 from flasgger import Swagger
 from marshmallow import ValidationError
 from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
-from delivery.repositories import MongoRepository, AbstractRestaurantRepository
+from delivery.repositories import MongoRestaurantRepository, AbstractRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
 from pymongo import MongoClient
 
@@ -57,9 +57,9 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
-    client = MongoClient('localhost', 27017)
-    db = client.delivery
-    repository = MongoRepository(db)
+    mongo_client = MongoClient(application.config['DB_PATH'])
+    db = mongo_client.delivery
+    repository = MongoRestaurantRepository(db)
     register_url_rules(application, repository)
     register_error_handlers(application)
 

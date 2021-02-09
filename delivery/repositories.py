@@ -3,24 +3,25 @@ from delivery.error_handling import WrongIdError
 from delivery.models import Restaurant
 from typing import Iterable
 from bson.objectid import ObjectId
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
+from pymongo import MongoClient
 
 
 class AbstractRestaurantRepository(ABC):
     @abstractmethod
-    def create(self, content: Restaurant):
+    def create(self, content: Restaurant) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, content: Restaurant):
+    def update(self, content: Restaurant) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    def get_all(self):
+    def get_all(self) -> Iterable[Restaurant]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_by_id(self, restaurant_id):
+    def get_by_id(self, restaurant_id) -> Restaurant:
         raise NotImplementedError
 
 
@@ -29,12 +30,12 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
         self.restaurants = restaurants or []
 
     def create(self, content: Restaurant) -> None:
-        content._id = str(len(self.restaurants))
+        content.id = str(len(self.restaurants))
         self.restaurants.append(content)
 
     def update(self, content: Restaurant) -> None:
         for restaurant in self.restaurants:
-            if restaurant._id == content._id:
+            if restaurant.id == content.id:
                 for key in ["name", "address", "work_time", "phone_number"]:
                     if getattr(content, key) != "":
                         setattr(restaurant, key, getattr(content, key))
@@ -46,41 +47,44 @@ class MemoryRestaurantRepository(AbstractRestaurantRepository):
 
     def get_by_id(self, restaurant_id: str) -> Restaurant:
         for restaurant in self.restaurants:
-            if restaurant._id == restaurant_id:
+            if restaurant.id == restaurant_id:
                 return restaurant
         raise WrongIdError(description="Restaurant with such ID doesn't exist")
 
 
-class MongoRepository(AbstractRestaurantRepository):
-    def __init__(self, restaurants):
-        self.restaurants = restaurants
+class MongoRestaurantRepository(AbstractRestaurantRepository):
+    def __init__(self, mongo_client: MongoClient):
+        self.mongo_client = mongo_client.restaurants
 
-    def create(self, content: Restaurant):
+    def create(self, content: Restaurant) -> None:
         content = asdict(content)
-        content.pop("_id")
-        self.restaurants.restaurant.insert_one(content)
+        content.pop("id")
+        self.mongo_client.insert_one(content)
 
-    def update(self, content: Restaurant):
+    def update(self, content: Restaurant) -> None:
         update_data = asdict(content)
         try:
-            restaurant = {'_id': ObjectId(update_data["_id"])}
+            restaurant = {'_id': ObjectId(update_data["id"])}
         except:
             raise WrongIdError(description="Restaurant with such ID doesn't exist")
         for key, value in asdict(content).items():
-            if value == "" or key == "_id":
+            if value == "" or key == "id":
                 update_data.pop(key)
-        self.restaurants.restaurant.update_one(restaurant, {"$set": update_data})
+        self.mongo_client.update_one(restaurant, {"$set": update_data})
 
-    def get_all(self):
+    def get_all(self) -> Iterable[Restaurant]:
         restaurants_list = []
-        for restaurant in self.restaurants.restaurant.find({}):
+        for restaurant in self.mongo_client.find({}):
+            restaurant["id"] = restaurant.pop("_id")
             restaurants_list.append(Restaurant(**restaurant))
         return restaurants_list
 
-    def get_by_id(self, restaurant_id):
+    def get_by_id(self, restaurant_id) -> Restaurant:
+        restaurant = self.mongo_client.find_one({"_id": ObjectId(restaurant_id)})
         try:
-            restaurant = self.restaurants.restaurant.find_one({"_id": ObjectId(restaurant_id)})
-            return Restaurant(**restaurant)
-        except:
+            restaurant["id"] = restaurant.pop("_id")
+        except AttributeError:
             raise WrongIdError(description="Restaurant with such ID doesn't exist")
+        return Restaurant(**restaurant)
+
 
