@@ -1,4 +1,3 @@
-import json
 import os
 from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
@@ -6,8 +5,9 @@ from delivery.error_handling import CustomError
 from flasgger import Swagger
 from marshmallow import ValidationError
 from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint
-from delivery.repositories import MemoryRestaurantRepository
+from delivery.repositories import MongoRestaurantRepository, AbstractRestaurantRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
+from pymongo import MongoClient
 
 
 def handle_validation_error(ex):
@@ -24,11 +24,11 @@ def handle_standard_exception(ex):
     }), ex.code
 
 
-def register_url_rules(app: Flask, restaurants: MemoryRestaurantRepository):
+def register_url_rules(app: Flask, restaurants: AbstractRestaurantRepository):
     app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api",
                                                                               restaurants,
                                                                               RestaurantCreateOrUpdateSchema()))
-    app.add_url_rule("/api/restaurants/<int:restaurant_id>",
+    app.add_url_rule("/api/restaurants/<restaurant_id>",
                      view_func=RestaurantItemEndpoint.as_view("restaurant_item_api",
                                                               restaurants,
                                                               RestaurantCreateOrUpdateSchema(partial=True)))
@@ -38,18 +38,6 @@ def register_error_handlers(app: Flask):
     app.register_error_handler(CustomError, handle_standard_exception)
     app.register_error_handler(HTTPException, handle_standard_exception)
     app.register_error_handler(ValidationError, handle_validation_error)
-
-
-def read_restaurants(path: str, repository: MemoryRestaurantRepository) -> None:
-    try:
-        with open(path, "r") as read_file:
-            data = json.load(read_file)
-            schema = RestaurantCreateOrUpdateSchema()
-            for restaurant in data['restaurants']:
-                a = schema.load(restaurant)
-                repository.create(a)
-    except TypeError:
-        raise TypeError("Set environment variable: PATH_FOR_INITIAL_DATA")
 
 
 def create_app() -> Flask:
@@ -69,11 +57,12 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
-    path = application.config.get('PATH_FOR_INITIAL_DATA', 'restaurants.json')
-    repository = MemoryRestaurantRepository()
-    read_restaurants(path, repository)
+    mongo_client = MongoClient(application.config['DB_CONNECTION'])
+    db = mongo_client.delivery
+    repository = MongoRestaurantRepository(db)
     register_url_rules(application, repository)
     register_error_handlers(application)
+
     return application
 
 
