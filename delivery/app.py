@@ -4,13 +4,10 @@ from werkzeug.exceptions import HTTPException
 from delivery.error_handling import CustomError
 from flasgger import Swagger
 from marshmallow import ValidationError
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token,
-    get_jwt_identity
-)
+from flask_jwt_extended import JWTManager
 from pymongo import MongoClient
 from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint, LoginEndpoint
-from delivery.repositories import MongoRestaurantRepository, AbstractRestaurantRepository
+from delivery.repositories import MongoRestaurantRepository, AbstractRestaurantRepository, AbstractUserRepository, MongoUserRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema
 
 
@@ -28,17 +25,16 @@ def handle_standard_exception(ex):
     }), ex.code
 
 
-def register_url_rules(app: Flask, restaurants: AbstractRestaurantRepository):
+def register_url_rules(app: Flask, repository: AbstractRestaurantRepository, user_repository: AbstractUserRepository):
     app.add_url_rule("/api/restaurants", view_func=RestaurantEndpoint.as_view("restaurant_api",
-                                                                              restaurants,
+                                                                              repository,
                                                                               RestaurantCreateOrUpdateSchema()))
     app.add_url_rule("/api/restaurants/<restaurant_id>",
                      view_func=RestaurantItemEndpoint.as_view("restaurant_item_api",
-                                                              restaurants,
+                                                              repository,
                                                               RestaurantCreateOrUpdateSchema(partial=True)))
 
-    app.add_url_rule("/api/login", view_func=LoginEndpoint.as_view("login_api",
-                                                                   restaurants, RestaurantCreateOrUpdateSchema()))
+    app.add_url_rule("/api/login", view_func=LoginEndpoint.as_view("login_api", user_repository))
 
 
 def register_error_handlers(app: Flask):
@@ -64,13 +60,13 @@ def create_app() -> Flask:
         'doc_dir': './apidocs/'
     }
     Swagger(application)
-    application.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this!
+
     jwt = JWTManager(application)
     mongo_client = MongoClient(application.config['DB_CONNECTION'])
     db = mongo_client.delivery
     repository = MongoRestaurantRepository(db)
 
-    register_url_rules(application, repository)
+    register_url_rules(application, repository, MongoUserRepository(db))
     register_error_handlers(application)
 
     return application

@@ -41,15 +41,13 @@ class RestaurantItemEndpoint(MethodView):
 
 
 class LoginEndpoint(MethodView):
-    def __init__(self, users: AbstractRestaurantRepository, schema):
+    def __init__(self, users):
         self.users = users
-        self.schema = schema
-
-    def get(self, restaurant_id: int):
-        return jsonify(self.schema.dump(self.restaurants.get_by_id(restaurant_id))), 200
 
     def post(self):
-        username = request.json.get('name', None)
+        username = request.json.get('login', None)
         password = request.json.get('password', None)
-        access_token = create_access_token(identity=username)
-        return jsonify(access_token=access_token), 200
+        user = self.users.get_user(username)
+        if user['password'] == password:
+            access_token = create_access_token(identity=username)
+            return jsonify(access_token=access_token), 200

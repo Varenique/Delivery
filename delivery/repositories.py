@@ -89,3 +89,20 @@ class MongoRestaurantRepository(AbstractRestaurantRepository):
             raise WrongIdError(description="Restaurant with such ID doesn't exist")
         restaurant["id"] = restaurant.pop("_id")
         return Restaurant(**restaurant)
+
+
+class AbstractUserRepository(ABC):
+    @abstractmethod
+    def get_user(self, login):
+        pass
+
+
+class MongoUserRepository(AbstractUserRepository):
+    def __init__(self, mongo_client: MongoClient):
+        self.mongo_client = mongo_client.users
+
+    def get_user(self, login):
+        user = self.mongo_client.find_one({"login": login})
+        if user is None:
+            raise WrongIdError(description="Restaurant with such ID doesn't exist")
+        return user
