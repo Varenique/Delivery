@@ -13,4 +13,9 @@ class WrongIdError(CustomError):
         super().__init__(name="Not Found", code=404, description=description)
 
 
+class WrongPassword(CustomError):
+    def __init__(self, description: str):
+        super().__init__(name="Unauthorized", code=401, description=description)
+
+
 

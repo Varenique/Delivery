@@ -1,10 +1,9 @@
+import base64
 from flask import jsonify, request
 from flask.views import MethodView
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from delivery.repositories import AbstractRestaurantRepository
-from flask_jwt_extended import (
-    JWTManager, jwt_required, create_access_token,
-    get_jwt_identity
-)
+from delivery.error_handling import WrongPassword
 
 
 class RestaurantEndpoint(MethodView):
@@ -41,13 +40,24 @@ class RestaurantItemEndpoint(MethodView):
 
 
 class LoginEndpoint(MethodView):
-    def __init__(self, users):
+    def __init__(self, users, schema):
         self.users = users
+        self.schema = schema
 
     def post(self):
-        username = request.json.get('login', None)
-        password = request.json.get('password', None)
-        user = self.users.get_user(username)
-        if user['password'] == password:
-            access_token = create_access_token(identity=username)
+        login = request.json.get('login', None)
+        password = base64.b64encode(request.json.get('password', None).encode()).decode()
+        self.schema.load({'login': login, 'password': password})
+        user_password = self.users.get_user(login).password
+        if user_password == password:
+            access_token = create_access_token(identity=login)
             return jsonify(access_token=access_token), 200
+        else:
+            raise WrongPassword('Wrong login or password')
+
+    @jwt_required
+    def get(self):
+        user = self.users.get_user(get_jwt_identity())
+        user_info = self.schema.dump(user)
+        user_info.pop('password')
+        return jsonify(user_info), 200

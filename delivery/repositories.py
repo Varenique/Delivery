@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
-from delivery.error_handling import WrongIdError
-from delivery.models import Restaurant
 from typing import Iterable
 from bson.objectid import ObjectId
 from dataclasses import asdict
 from pymongo import MongoClient, ReturnDocument
+from delivery.error_handling import WrongIdError
+from delivery.models import Restaurant, User
 
 
 class AbstractRestaurantRepository(ABC):
@@ -104,5 +104,6 @@ class MongoUserRepository(AbstractUserRepository):
     def get_user(self, login):
         user = self.mongo_client.find_one({"login": login})
         if user is None:
-            raise WrongIdError(description="Restaurant with such ID doesn't exist")
-        return user
+            raise WrongIdError(description="Wrong login")
+        user["id"] = user.pop("_id")
+        return User(**user)

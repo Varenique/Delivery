@@ -29,6 +29,35 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get user info",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTMwMzY5ODgsIm5iZiI6MTYxMzAzNjk4OCwianRpIjoiZGYxNWVlYzYtNTRjMS00NDIzLWJlMzQtZGZlY2FjY2E1OGM0IiwiZXhwIjoxNjEzMDM3ODg4LCJpZGVudGl0eSI6InZhcnlhIiwiZnJlc2giOmZhbHNlLCJ0eXBlIjoiYWNjZXNzIn0.4qoM351pOF7Nmsup2n-nvzNjSMlQuIeop0uirOCWLL0",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"login"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -53,6 +82,38 @@
 							"path": [
 								"api",
 								"restaurants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "log in",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Varvara\", \r\n    \"password\": \"1234\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/api/login",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"login"
 							]
 						}
 					},
