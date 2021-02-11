@@ -4,6 +4,8 @@ from flask.views import MethodView
 from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity
 from delivery.repositories import AbstractRestaurantRepository
 from delivery.error_handling import WrongPassword
+from werkzeug.security import generate_password_hash, check_password_hash
+import bcrypt
 
 
 class RestaurantEndpoint(MethodView):
@@ -46,10 +48,14 @@ class LoginEndpoint(MethodView):
 
     def post(self):
         login = request.json.get('login', None)
-        password = base64.b64encode(request.json.get('password', None).encode()).decode()
-        self.schema.load({'login': login, 'password': password})
+        password = request.json.get('password', None)
         user_password = self.users.get_user(login).password
-        if user_password == password:
+        try:
+            hashed = bcrypt.kdf(password.encode(), salt=login.encode(), desired_key_bytes=len(login), rounds=len(password))
+        except:
+            raise WrongPassword('Password is required')
+        result = user_password.encode('latin1').decode('unicode_escape').encode('latin1')
+        if result == hashed:
             access_token = create_access_token(identity=login)
             return jsonify(access_token=access_token), 200
         else:
@@ -58,6 +64,4 @@ class LoginEndpoint(MethodView):
     @jwt_required
     def get(self):
         user = self.users.get_user(get_jwt_identity())
-        user_info = self.schema.dump(user)
-        user_info.pop('password')
-        return jsonify(user_info), 200
+        return jsonify(self.schema.dump(user)), 200
