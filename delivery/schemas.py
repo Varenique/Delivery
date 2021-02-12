@@ -18,7 +18,7 @@ class UserSchema(Schema):
     login = fields.Str(required=True)
     name = fields.Str()
     phone_number = fields.Str()
-    rights = fields.Str()
+    role = fields.Str()
     password = fields.Str(load_only=True)
     id = fields.Str(dump_only=True)
 

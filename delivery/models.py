@@ -16,5 +16,5 @@ class User:
     password: str = ""
     name: str = ""
     phone_number: str = ""
-    rights: str = ""
+    role: str = ""
     id: str = ""
