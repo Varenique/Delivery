@@ -14,18 +14,55 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": ""
+							"raw": "http://127.0.0.1:5000/api/restaurants",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"restaurants"
+							]
 						}
 					},
 					"response": []
 				},
 				{
 					"name": "get one restaurant",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": ""
+							"raw": "http://127.0.0.1:5000/api/restaurants/60212c8ddb0f1f8d17df9929",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"restaurants",
+								"60212c8ddb0f1f8d17df9929"
+							]
 						}
 					},
 					"response": []
@@ -130,6 +167,20 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "register user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "register user",
+							"host": [
+								"register user"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -141,8 +192,17 @@
 					"request": {
 						"method": "PUT",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Vasilki\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://127.0.0.1:5000/api/restaurants/0",
+							"raw": "http://127.0.0.1:5000/api/restaurants/60225a383b511a51f3ad50ca",
 							"protocol": "http",
 							"host": [
 								"127",
@@ -154,7 +214,7 @@
 							"path": [
 								"api",
 								"restaurants",
-								"0"
+								"60225a383b511a51f3ad50ca"
 							]
 						}
 					},

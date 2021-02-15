@@ -6,7 +6,7 @@ from flasgger import Swagger
 from marshmallow import ValidationError
 from flask_jwt_extended import JWTManager
 from pymongo import MongoClient
-from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint, LoginEndpoint
+from delivery.routes import RestaurantEndpoint, RestaurantItemEndpoint, LoginEndpoint, RegisterEndpoint
 from delivery.repositories import MongoRestaurantRepository, AbstractRestaurantRepository, AbstractUserRepository, MongoUserRepository
 from delivery.schemas import RestaurantCreateOrUpdateSchema, UserSchema
 
@@ -37,6 +37,9 @@ def register_url_rules(app: Flask, repository: AbstractRestaurantRepository, use
     app.add_url_rule("/api/login", view_func=LoginEndpoint.as_view("login_api",
                                                                    user_repository,
                                                                    UserSchema()))
+    app.add_url_rule("/api/register", view_func=RegisterEndpoint.as_view("register_api",
+                                                                         user_repository,
+                                                                         UserSchema()))
 
 
 def register_error_handlers(app: Flask):

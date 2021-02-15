@@ -1,3 +1,4 @@
+import bcrypt
 from abc import ABC, abstractmethod
 from typing import Iterable
 from bson.objectid import ObjectId
@@ -96,6 +97,9 @@ class AbstractUserRepository(ABC):
     def get_user(self, login):
         pass
 
+    def add_user(self, login):
+        pass
+
 
 class MongoUserRepository(AbstractUserRepository):
     def __init__(self, mongo_client: MongoClient):
@@ -107,3 +111,13 @@ class MongoUserRepository(AbstractUserRepository):
             raise WrongIdError(description="Wrong login")
         user["id"] = user.pop("_id")
         return User(**user)
+
+    def add_user(self, content: User):
+        password = bcrypt.hashpw(content.password.encode(), bcrypt.gensalt())
+        content = asdict(content)
+        content.pop("id")
+        content['password'] = password.decode()
+        return self.mongo_client.find_one_and_update({'name': ''},
+                                                     {'$set': content},
+                                                     upsert=True, return_document=ReturnDocument.AFTER)
+

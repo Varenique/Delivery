@@ -60,3 +60,15 @@ class LoginEndpoint(MethodView):
     def get(self):
         user = self.users.get_user(get_jwt_identity())
         return jsonify(self.schema.dump(user)), 200
+
+
+class RegisterEndpoint(MethodView):
+    def __init__(self, users, schema):
+        self.users = users
+        self.schema = schema
+
+    def post(self):
+        content = request.json
+        user = self.schema.load(content)
+        a = self.users.add_user(user)
+        return jsonify(self.schema.dump(a)), 201
