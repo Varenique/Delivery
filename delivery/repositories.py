@@ -121,3 +121,20 @@ class MongoUserRepository(AbstractUserRepository):
                                                      {'$set': content},
                                                      upsert=True, return_document=ReturnDocument.AFTER)
 
+
+class MemoryUserRepository(AbstractUserRepository):
+    def __init__(self, users=None):
+        self.users = users or []
+
+    def get_user(self, login):
+        for user in self.users:
+            if user.login == login:
+                return user
+        raise WrongIdError(description="Wrong login")
+
+    def add_user(self, content: User):
+        password = bcrypt.hashpw(content.password.encode(), bcrypt.gensalt())
+        content.password = password.decode()
+        content.id = str(len(self.users))
+        self.users.append(content)
+        return content
