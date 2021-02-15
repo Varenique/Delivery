@@ -49,13 +49,8 @@ class LoginEndpoint(MethodView):
     def post(self):
         login = request.json.get('login', None)
         password = request.json.get('password', None)
-        user_password = self.users.get_user(login).password
-        try:
-            hashed = bcrypt.kdf(password.encode(), salt=login.encode(), desired_key_bytes=len(login), rounds=len(password))
-        except:
-            raise WrongPassword('Password is required')
-        result = user_password.encode('latin1').decode('unicode_escape').encode('latin1')
-        if result == hashed:
+        user_password = self.users.get_user(login).password.encode()
+        if bcrypt.hashpw(password.encode(), user_password) == user_password:
             access_token = create_access_token(identity=login)
             return jsonify(access_token=access_token), 200
         else:
