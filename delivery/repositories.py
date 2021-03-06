@@ -1,10 +1,11 @@
+import bcrypt
 from abc import ABC, abstractmethod
-from delivery.error_handling import WrongIdError
-from delivery.models import Restaurant
 from typing import Iterable
 from bson.objectid import ObjectId
 from dataclasses import asdict
 from pymongo import MongoClient, ReturnDocument
+from delivery.error_handling import WrongIdError
+from delivery.models import Restaurant, User
 
 
 class AbstractRestaurantRepository(ABC):
@@ -89,3 +90,51 @@ class MongoRestaurantRepository(AbstractRestaurantRepository):
             raise WrongIdError(description="Restaurant with such ID doesn't exist")
         restaurant["id"] = restaurant.pop("_id")
         return Restaurant(**restaurant)
+
+
+class AbstractUserRepository(ABC):
+    @abstractmethod
+    def get_user(self, login):
+        pass
+
+    def add_user(self, login):
+        pass
+
+
+class MongoUserRepository(AbstractUserRepository):
+    def __init__(self, mongo_client: MongoClient):
+        self.mongo_client = mongo_client.users
+
+    def get_user(self, login):
+        user = self.mongo_client.find_one({"login": login})
+        if user is None:
+            raise WrongIdError(description="Wrong login")
+        user["id"] = user.pop("_id")
+        return User(**user)
+
+    def add_user(self, content: User):
+        password = bcrypt.hashpw(content.password.encode(), bcrypt.gensalt())
+        content = asdict(content)
+        content.pop("id")
+        content['password'] = password.decode()
+        return self.mongo_client.find_one_and_update({'name': ''},
+                                                     {'$set': content},
+                                                     upsert=True, return_document=ReturnDocument.AFTER)
+
+
+class MemoryUserRepository(AbstractUserRepository):
+    def __init__(self, users=None):
+        self.users = users or []
+
+    def get_user(self, login):
+        for user in self.users:
+            if user.login == login:
+                return user
+        raise WrongIdError(description="Wrong login")
+
+    def add_user(self, content: User):
+        password = bcrypt.hashpw(content.password.encode(), bcrypt.gensalt())
+        content.password = password.decode()
+        content.id = str(len(self.users))
+        self.users.append(content)
+        return content

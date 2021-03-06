@@ -12,6 +12,7 @@ class Config:
     PATH_FOR_INITIAL_DATA = None
     HOST = "0.0.0.0"
     PORT = 5000
+    JWT_SECRET_KEY = None
 
 
 class ProdConfig(Config):
@@ -19,6 +20,7 @@ class ProdConfig(Config):
     DB_CONNECTION = environ.get("DB_CONNECTION")
     HOST = "0.0.0.0"
     PORT = 5000
+    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
 
 
 class DevConfig(Config):
@@ -28,5 +30,6 @@ class DevConfig(Config):
     DB_CONNECTION = 'mongodb://localhost:27017/'
     HOST = "127.0.0.1"
     PORT = 5000
+    JWT_SECRET_KEY = 'secret_key'
 
 

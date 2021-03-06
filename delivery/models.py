@@ -8,3 +8,13 @@ class Restaurant:
     work_time: str = ""
     phone_number: str = ""
     id: str = ""
+
+
+@dataclass
+class User:
+    login: str = ""
+    password: str = ""
+    name: str = ""
+    phone_number: str = ""
+    role: str = ""
+    id: str = ""
